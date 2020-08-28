@@ -1,0 +1,143 @@
+[
+  {
+    "id": 1,
+    "name": "Exercice 1",
+    "tasks": [
+      {
+        "title": "Liste de l'ensemble des marques",
+        "description": [
+          "Compléter la fonction getNomMarques pour retourner un tableau de string contenant le nom des marques à partir de la variable marques (retour API GET v1/marques)"
+        ],
+        "objectives": ["Savoir analyser le retour d'une API afin d'afficher qu'une partie des données reçues"],
+        "img": "e1_t1"
+      },
+      {
+        "title": "Liste des marques à partir des modèles",
+        "description": [
+          "Dans la div 'container-exercice-1-tache-2', afficher le nom de l'ensemble des marques à partir de la variable marques (retour API GET v1/marques) dans le template avec un v-for (<a href=\"https://fr.vuejs.org/v2/guide/list.html#Associer-un-tableau-a-des-elements-avec-v-for\" target=\"_blank\">voir documentation Vue</a>)"
+        ],
+        "objectives": ["Savoir analyser le retour d'une API afin d'afficher qu'une partie des données reçues"],
+        "img": "e1_t2",
+        "css": {
+          "description": [
+            "Centrer verticalement et horizontalement les éléments à l'aide d'un flex",
+            "Ajouter une bordure ainsi que des marges",
+            "Appliquer la classe CSS 'blue' (déjà existante) sur la marque Peugeot uniquement (<a href=\"https://fr.vuejs.org/v2/guide/class-and-style.html#Syntaxe-Objet\" target=\"_blank\">voir documentation Vue</a>)"
+          ],
+          "objectives": [
+            "Savoir aligner des éléments dans un display flex",
+            "Savoir appliquer une classe CSS conditionnellement"
+          ],
+          "img": "e1_t2_css"
+        }
+      },
+      {
+        "title": "Liste des modèles de la marque RENAULT",
+        "description": [
+          "Dans la div 'container-exercice-1-tache-3', afficher le nom des modèles de la marque RENAULT à partir de la variable modeles (retour API GET v1/modeles) dans le template avec un v-for (<a href=\"https://fr.vuejs.org/v2/guide/list.html#Associer-un-tableau-a-des-elements-avec-v-for\" target=\"_blank\">voir documentation Vue</a>)"
+        ],
+        "objectives": ["Savoir analyser le retour d'une API et filtrer les données reçues"],
+        "img": "e1_t3",
+        "css": {
+          "description": [
+            "Afficher les éléments en colonne puis les aligner à droite l'aide d'un flex",
+            "Ajouter une bordure ainsi que des marges (possibilité d'utiliser la même classe CSS / code que la tâche 2)"
+          ],
+          "objectives": ["Savoir aligner des éléments dans un display flex"],
+          "img": "e1_t3_css"
+        }
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Exercice 2",
+    "tasks": [
+      {
+        "title": "Ajouter une checkbox actif",
+        "description": ["Ajouter une checkbox actif dans le formulaire"],
+        "objectives": ["Savoir ajouter un nouveau champ dans un formulaire"],
+        "img": "e2_t1"
+      },
+      {
+        "title": "Ajouter une liste déroulante catégorie",
+        "description": [
+          "Ajouter une liste déroulante catégorie dans le formulaire",
+          "Appeler l'API GET v1/categories pour alimenter cette liste déroulante"
+        ],
+        "objectives": ["Savoir ajouter une nouvelle API", "Savoir ajouter un nouveau champ dans un formulaire"],
+        "img": "e2_t2"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Exercice 3",
+    "tasks": [
+      {
+        "title": "Liste des modèles au format MARQUE Modèle (Catégorie)",
+        "description": [
+          "Dans la div 'container-exercice-3', afficher l'ensemble des modèles au format 'MARQUE Modèle (Catégorie)' à partir de la variable modeles (retour API GET v1/modeles)"
+        ],
+        "objectives": ["Savoir afficher et formatter des données d'une API"],
+        "img": "e3_t1"
+      },
+      {
+        "title": "Ajout d'un bouton pour supprimer un modèle",
+        "description": [
+          "A côté de chaque modèles, ajouter un bouton pour supprimer ce modèle qui va appeler l'API DELETE v1/modeles/idModele"
+        ],
+        "objectives": ["Savoir ajouter une nouvelle API", "Savoir l'appeler dans le Front"],
+        "img": "e3_t2",
+        "css": {
+          "description": [
+            "Afficher les éléments à la suite l'aide d'un flex",
+            "Ajouter une bordure ainsi que des marges (possibilité d'utiliser la même classe CSS / code que l'exercice 1 - tâche 2/3)"
+          ],
+          "objectives": ["Savoir aligner des éléments dans un display flex"]
+        }
+      },
+      {
+        "title": "Ajout d'un input pour modifier le nom du modèle ainsi qu'un bouton pour valider la modification",
+        "description": [
+          "Ajouter un input pour changer le nom du modèle",
+          "Ajouter un bouton pour valider la modification de ce modèle qui va appeler l'API PUT v1/modeles"
+        ],
+        "objectives": ["Savoir modifier des objets en Front puis appeler une API pour persister la modification"],
+        "img": "e3_t3"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "Exercice bonus",
+    "tasks": [
+      {
+        "title": "Formulaire de recherche d'un modèle",
+        "description": [
+          "Ajouter un formulaire avec un champ ID, liste déroulante marque, champ nom, liste déroulante catégorie"
+        ],
+        "objectives": ["Savoir ajouter un nouveau formulaire"],
+        "img": "e4_t1"
+      },
+      {
+        "title": "Boutons du formulaire",
+        "description": [
+          "Ajouter un bouton Rechercher qui appele l'API POST v1/modeles/filtre avec l'objet suivant dans le body (les champs sont nullables)",
+          "Ajouter un bouton Réinitialiser qui remet les champs du formulaire à null et lance la recherche (appel API POST v1/modeles/filtre)"
+        ],
+        "objectives": ["Savoir ajouter des boutons avec des évènements"],
+        "img": "e4_t2"
+      },
+      {
+        "title": "Tableau pour afficher les résultats",
+        "description": [
+          "Afficher le nombre de résultats retourné par l'API POST v1/modeles/filtre",
+          "Construire le tableau avec les colonnes ID, Marque, Modèle, Catégorie et Actif"
+        ],
+        "objectives": ["Savoir ajouter un tableau pour afficher des données d'une API"],
+        "img": "e4_t3"
+      }
+    ]
+  }
+]
