@@ -12,90 +12,13 @@
           <NewCategory></NewCategory>
         </li>
         <li v-for="category in list" :key="category.id">
-          <nobr>
-            <span v-if="!category.editingACategory">{{ category.name }}</span>
-            <el-input
-              v-if="category.editingACategory"
-              v-model="category.name"
-              clearable
-              :placeholder="`${tmpCategoryName}`"
-            >
-              <template slot="prepend">Category Name</template>
-            </el-input>
-            <el-button
-              v-if="!category.editingACategory"
-              type="primary"
-              icon="el-icon-edit"
-              size="medium"
-              circle
-              @click="editACategory(category)"
-            ></el-button>
-            <el-button
-              v-if="category.editingACategory"
-              type="success"
-              icon="el-icon-check"
-              circle
-              @click="saveACategory(category)"
-              :disabled="category.name == ''"
-            ></el-button>
-            <el-button
-              v-if="category.editingACategory"
-              type="warning"
-              icon="el-icon-close"
-              circle
-              @click="cancelCategoryEdit(category)"
-            ></el-button>
-            <el-button
-              v-if="category.editingACategory"
-              type="danger"
-              icon="el-icon-delete"
-              circle
-              @click="deleteACategory(category)"
-            ></el-button>
-          </nobr>
+          <Category :category="category"></Category>
           <ul>
             <li>
               <NewItem :category="category"></NewItem>
             </li>
             <li v-for="item in category.items" :key="item.id">
               <Item :category="category" :item="item"></Item>
-              <!--
-                <nobr>
-                <span v-if="!item.editingAnItem">{{ item.name }}</span>
-                <el-input v-if="item.editingAnItem" v-model="item.name" clearable :placeholder="`${tmpItemName}`">
-                  <template slot="prepend">Item Name</template>
-                </el-input>
-                <el-button
-                  v-if="!item.editingAnItem"
-                  type="primary"
-                  icon="el-icon-edit"
-                  circle
-                  @click="editAnItem(item)"
-                ></el-button>
-                <el-button
-                  v-if="item.editingAnItem"
-                  type="success"
-                  icon="el-icon-check"
-                  circle
-                  @click="saveAnItem(item)"
-                  :disabled="item.name == ''"
-                ></el-button>
-                <el-button
-                  v-if="item.editingAnItem"
-                  type="warning"
-                  icon="el-icon-close"
-                  circle
-                  @click="cancelItemEdit(item)"
-                ></el-button>
-                <el-button
-                  v-if="item.editingAnItem"
-                  type="danger"
-                  icon="el-icon-delete"
-                  circle
-                  @click="deleteAnItem(category, item)"
-                ></el-button>
-              </nobr>
-              -->
             </li>
           </ul>
         </li>
@@ -149,8 +72,6 @@ export default {
   components: { newCategory, newItem, Item },
   data: () => {
     return {
-      tmpCategoryName: '',
-
       list: null,
       user: {
         isLoggedIn: false,
@@ -318,36 +239,6 @@ export default {
         .catch(function (error) {
           console.log('Error getting cached document:', error)
         })
-    },
-
-    deleteACategory(category) {
-      if (confirm(`Are you sure you want to delete the category ${category.name}?`) == true) {
-        this.waitingForUSerData = true
-
-        for (var i = 0; i < this.list.length; i++) {
-          if (this.list[i].name === category.name) {
-            this.list.splice(i, 1)
-          }
-        }
-
-        this.saveList()
-      } else {
-        category.editingACategory = !category.editingACategory
-      }
-    },
-
-    saveACategory(category) {
-      category.editingACategory = !category.editingACategory
-      this.saveList()
-    },
-    editACategory(category) {
-      this.tmpCategoryName = category.name
-      category.editingACategory = !category.editingACategory
-    },
-    cancelCategoryEdit(category) {
-      if (this.tmpCategoryName) category.name = this.tmpCategoryName
-      category.editingACategory = !category.editingACategory
-      this.saveList()
     }
   }
 }
