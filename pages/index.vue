@@ -9,42 +9,7 @@
       <br />
       <ul>
         <li>
-          <nobr>
-            <el-button
-              v-if="!addingANewCategory"
-              type="success"
-              icon="el-icon-plus"
-              size="medium"
-              round
-              @click="startAddANewCategory()"
-              >New Category</el-button
-            >
-            <el-input
-              v-if="addingANewCategory"
-              v-model="newCategory.name"
-              clearable
-              placeholder="Please input a new Category Name"
-            >
-              <template slot="prepend">New Category Name</template>
-            </el-input>
-            <el-button
-              v-if="addingANewCategory"
-              type="success"
-              icon="el-icon-check"
-              circle
-              @click="addNewCategory()"
-              :disabled="newCategory.name == ''"
-            >
-            </el-button>
-            <el-button
-              v-if="addingANewCategory"
-              type="danger"
-              icon="el-icon-close"
-              circle
-              @click="addingANewCategory = !addingANewCategory"
-            >
-            </el-button>
-          </nobr>
+          <NewCategory></NewCategory>
         </li>
         <li v-for="category in list" :key="category.id">
           <nobr>
@@ -207,23 +172,16 @@ import firebase from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/firestore'
 
-// When a user logs in or out, save that in the store
+import newCategory from '@/components/newCategory.vue'
 
 export default {
-  components: {},
+  components: { newCategory },
   data: () => {
     return {
       tmpCategoryName: '',
       tmpItemName: '',
-      addingANewCategory: false,
+
       list: null,
-      newCategory: {
-        name: '',
-        items: [],
-        newItem: { name: '', editingAnItem: false },
-        addingANewItem: false,
-        editingACategory: false
-      },
 
       user: {
         isLoggedIn: false,
