@@ -55,41 +55,7 @@
           </nobr>
           <ul>
             <li>
-              <nobr>
-                <el-button
-                  v-if="!category.addingANewItem"
-                  type="primary"
-                  icon="el-icon-plus"
-                  size="medium"
-                  round
-                  @click="category.addingANewItem = !category.addingANewItem"
-                >
-                  New Item in {{ category.name }}
-                </el-button>
-                <el-input
-                  v-if="category.addingANewItem"
-                  v-model="category.newItem.name"
-                  clearable
-                  :placeholder="`Please enter a new item in ${category.name}`"
-                >
-                  <template slot="prepend">New Item Name</template>
-                </el-input>
-                <el-button
-                  v-if="category.addingANewItem"
-                  type="success"
-                  icon="el-icon-check"
-                  circle
-                  @click="addNewItem(category)"
-                  :disabled="category.newItem.name == ''"
-                ></el-button>
-                <el-button
-                  v-if="category.addingANewItem"
-                  type="danger"
-                  icon="el-icon-close"
-                  circle
-                  @click="category.addingANewItem = !category.addingANewItem"
-                ></el-button>
-              </nobr>
+              <NewItem :category="category"></NewItem>
             </li>
             <li v-for="item in category.items" :key="item.id">
               <nobr>
@@ -173,16 +139,15 @@ import 'firebase/auth'
 import 'firebase/firestore'
 
 import newCategory from '@/components/newCategory.vue'
+import newItem from '@/components/newItem.vue'
 
 export default {
-  components: { newCategory },
+  components: { newCategory, newItem },
   data: () => {
     return {
       tmpCategoryName: '',
       tmpItemName: '',
-
       list: null,
-
       user: {
         isLoggedIn: false,
         displayName: 'Not Logged In', // Placeholders for what google will return
@@ -351,28 +316,6 @@ export default {
         })
     },
 
-    startAddANewCategory() {
-      this.newCategory.name = ''
-      this.addingANewCategory = !this.addingANewCategory
-    },
-
-    addNewCategory() {
-      this.waitingForUSerData = true
-
-      if (this.list == null) {
-        this.list = [this.newCategory]
-      } else {
-        this.list.unshift(this.newCategory)
-      }
-
-      this.addingANewCategory = false
-
-      //Need this bulshit because Javascript is still javascript and it is allways copuing objects by reference and the other cloning methods didn' work, so i need to reset the new category
-      this.newCategory = JSON.parse(JSON.stringify(this.newCategory))
-
-      this.saveList()
-    },
-
     deleteACategory(category) {
       if (confirm(`Are you sure you want to delete the category ${category.name}?`) == true) {
         this.waitingForUSerData = true
@@ -401,25 +344,6 @@ export default {
       if (this.tmpCategoryName) category.name = this.tmpCategoryName
       category.editingACategory = !category.editingACategory
       this.saveList()
-    },
-
-    addNewItem(category) {
-      this.waitingForUSerData = true
-
-      for (var i = 0; i < this.list.length; i++) {
-        if (this.list[i].name === category.name) {
-          if (this.list[i].items.length > 0) {
-            this.list[i].items.unshift(category.newItem)
-          } else {
-            this.list[i].items.push(category.newItem)
-          }
-        }
-      }
-
-      category.newItem = { name: '', editingAnItem: false }
-
-      this.saveList()
-      category.addingANewItem = false
     },
 
     deleteAnItem(category, item) {
