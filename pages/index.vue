@@ -343,13 +343,28 @@ export default {
     },
 
     saveList() {
-      this.firebaseDb
-        .collection('list')
-        .doc(this.user.uid)
-        .set({ list: this.list })
-        .then(() => {
-          this.waitingForUSerData = false
+      if (this.list) {
+        this.list.map((category) => {
+          // Recetting the state of all objects
+          this.addingANewCategory = false
+          category.editingACategory = false
+          category.addingANewItem = false
+
+          if (category.items) {
+            category.items.map((item) => {
+              item.editingAnItem = false
+            })
+          }
+
+          this.firebaseDb
+            .collection('list')
+            .doc(this.user.uid)
+            .set({ list: this.list })
+            .then(() => {
+              this.waitingForUSerData = false
+            })
         })
+      }
     },
 
     getList() {
@@ -366,13 +381,17 @@ export default {
         .then((doc) => {
           this.list = doc.data().list
 
-          this.list.map((category) => {
-            category.addingANewItem = false
-            category.editingACategory = false
-            category.newItem = { name: '', editingAnItem: false }
-          })
+          if (this.list) {
+            this.list.map((category) => {
+              category.addingANewItem = false
+              category.editingACategory = false
+              category.newItem = { name: '', editingAnItem: false }
+            })
 
-          this.waitingForUSerData = false
+            this.waitingForUSerData = false
+          } else {
+            this.list = null
+          }
         })
         .catch(function (error) {
           console.log('Error getting cached document:', error)
@@ -381,8 +400,14 @@ export default {
 
     addNewCategory() {
       this.waitingForUSerData = true
-      this.list.unshift(this.newCategory)
-      this.newCategory = { name: '', editingACategory: false }
+
+      if (this.list == null) {
+        this.list = [this.newCategory]
+      } else {
+        this.list.unshift(this.newCategory)
+      }
+
+      this.newCategory = { name: '', editingACategory: false, items: [] }
       this.saveList()
       this.addingANewCategory = false
     },
@@ -412,8 +437,9 @@ export default {
       category.editingACategory = !category.editingACategory
     },
     cancelCategoryEdit(category) {
-      category.name = this.tmpCategoryName
+      if (this.tmpCategoryName) category.name = this.tmpCategoryName
       category.editingACategory = !category.editingACategory
+      this.saveList()
     },
 
     addNewItem(category) {
@@ -463,8 +489,9 @@ export default {
     },
 
     cancelItemEdit(item) {
-      item.name = this.tmpItemName
+      if (this.tmpItemName) item.name = this.tmpItemName
       item.editingAnItem = !item.editingAnItem
+      this.saveList()
     }
   }
 }
