@@ -58,7 +58,9 @@
               <NewItem :category="category"></NewItem>
             </li>
             <li v-for="item in category.items" :key="item.id">
-              <nobr>
+              <Item :category="category" :item="item"></Item>
+              <!--
+                <nobr>
                 <span v-if="!item.editingAnItem">{{ item.name }}</span>
                 <el-input v-if="item.editingAnItem" v-model="item.name" clearable :placeholder="`${tmpItemName}`">
                   <template slot="prepend">Item Name</template>
@@ -93,6 +95,7 @@
                   @click="deleteAnItem(category, item)"
                 ></el-button>
               </nobr>
+              -->
             </li>
           </ul>
         </li>
@@ -140,13 +143,14 @@ import 'firebase/firestore'
 
 import newCategory from '@/components/newCategory.vue'
 import newItem from '@/components/newItem.vue'
+import Item from '@/components/Item.vue'
 
 export default {
-  components: { newCategory, newItem },
+  components: { newCategory, newItem, Item },
   data: () => {
     return {
       tmpCategoryName: '',
-      tmpItemName: '',
+
       list: null,
       user: {
         isLoggedIn: false,
@@ -343,39 +347,6 @@ export default {
     cancelCategoryEdit(category) {
       if (this.tmpCategoryName) category.name = this.tmpCategoryName
       category.editingACategory = !category.editingACategory
-      this.saveList()
-    },
-
-    deleteAnItem(category, item) {
-      if (confirm(`Are you sure you want to delete the item ${item.name}?`) == true) {
-        this.waitingForUSerData = true
-
-        for (var i = 0; i < category.items.length; i++) {
-          if (category.items[i].name === item.name) {
-            category.items.splice(i, 1)
-          }
-        }
-
-        this.saveList()
-      } else {
-        item.editingAnItem = !item.editingAnItem
-      }
-    },
-
-    saveAnItem(item) {
-      this.waitingForUSerData = true
-      item.editingAnItem = !item.editingAnItem
-      this.saveList()
-    },
-
-    editAnItem(item) {
-      this.tmpItemName = item.name
-      item.editingAnItem = !item.editingAnItem
-    },
-
-    cancelItemEdit(item) {
-      if (this.tmpItemName) item.name = this.tmpItemName
-      item.editingAnItem = !item.editingAnItem
       this.saveList()
     }
   }

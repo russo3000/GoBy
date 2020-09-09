@@ -40,16 +40,7 @@
 export default {
   props: { category: { name: '' } },
   data() {
-    return {
-      addingANewCategory: false,
-      newCategory: {
-        name: '',
-        items: [],
-        newItem: { name: '', editingAnItem: false },
-        addingANewItem: false,
-        editingACategory: false
-      }
-    }
+    return {}
   },
   created() {},
   methods: {
