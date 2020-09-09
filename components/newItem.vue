@@ -23,8 +23,8 @@
       type="success"
       icon="el-icon-check"
       circle
-      @click="addNewItem(category)"
       :disabled="category.newItem.name == ''"
+      @click="addNewItem(category)"
     ></el-button>
     <el-button
       v-if="category.addingANewItem"
@@ -38,7 +38,7 @@
 
 <script>
 export default {
-  props: { category: { name: '' } },
+  props: { category: { type: Object, required: true } },
   data() {
     return {}
   },

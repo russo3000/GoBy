@@ -16,8 +16,8 @@
       type="success"
       icon="el-icon-check"
       circle
-      @click="saveAnItem(item)"
       :disabled="item.name == ''"
+      @click="saveAnItem(item)"
     ></el-button>
     <el-button
       v-if="item.editingAnItem"
@@ -38,7 +38,7 @@
 
 <script>
 export default {
-  props: { category: { name: '' }, item: { name: '', editingAnItem: false } },
+  props: { category: { type: Object, required: true }, item: { type: Object, required: true } },
   data() {
     return {
       tmpItemName: ''

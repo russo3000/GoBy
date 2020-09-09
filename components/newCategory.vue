@@ -23,8 +23,8 @@
       type="success"
       icon="el-icon-check"
       circle
-      @click="addNewCategory()"
       :disabled="newCategory.name == ''"
+      @click="addNewCategory()"
     >
     </el-button>
     <el-button

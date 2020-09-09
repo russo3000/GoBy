@@ -29,20 +29,7 @@
       <br />
     </div>
 
-    <div v-else-if="waitingForUSerData" class="lds-spinner">
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-    </div>
+    <LoaderCss v-else-if="waitingForUSerData"></LoaderCss>
 
     <button v-if="!waitingForUSerData && !user.isLoggedIn" @click="login('google')">Sign In with Google</button>
     <button v-if="!waitingForUSerData && !user.isLoggedIn" @click="login('facebook')">Sign In with FB</button>
@@ -64,12 +51,14 @@ import firebase from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/firestore'
 
+import LoaderCss from '@/components/loader.vue'
 import newCategory from '@/components/newCategory.vue'
+import Category from '@/components/Category.vue'
 import newItem from '@/components/newItem.vue'
 import Item from '@/components/Item.vue'
 
 export default {
-  components: { newCategory, newItem, Item },
+  components: { LoaderCss, newCategory, Category, newItem, Item },
   data: () => {
     return {
       list: null,

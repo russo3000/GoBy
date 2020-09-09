@@ -17,8 +17,8 @@
       type="success"
       icon="el-icon-check"
       circle
-      @click="saveACategory(category)"
       :disabled="category.name == ''"
+      @click="saveACategory(category)"
     ></el-button>
     <el-button
       v-if="category.editingACategory"
@@ -39,7 +39,7 @@
 
 <script>
 export default {
-  props: { category: { name: '', items: [], editingACategory: false } },
+  props: { category: { type: Object, required: true } },
   data() {
     return {
       tmpCategoryName: ''
