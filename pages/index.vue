@@ -3,8 +3,173 @@
     <div v-if="user.isLoggedIn">
       <img :src="user.photoURL" class="avatar" />
 
-      <div>Last Login: {{ currentUserLastLogin }}</div>
-      <button @click="logout()">Logout</button>
+      <div>Last Login: {{ currentUserLastLogin }} <button @click="logout()">Logout</button></div>
+
+      <br />
+      <br />
+      <ul>
+        <li>
+          <nobr>
+            <el-button
+              v-if="!addingANewCategory"
+              type="success"
+              icon="el-icon-plus"
+              size="medium"
+              round
+              @click="addingANewCategory = !addingANewCategory"
+              >New Category</el-button
+            >
+            <el-input
+              v-if="addingANewCategory"
+              v-model="newCategory.name"
+              clearable
+              placeholder="Please input a new Category Name"
+            >
+              <template slot="prepend">New Category Name</template>
+            </el-input>
+            <el-button
+              v-if="addingANewCategory"
+              type="success"
+              icon="el-icon-check"
+              circle
+              @click="addNewCategory()"
+              :disabled="newCategory.name == ''"
+            >
+            </el-button>
+            <el-button
+              v-if="addingANewCategory"
+              type="danger"
+              icon="el-icon-close"
+              circle
+              @click="addingANewCategory = !addingANewCategory"
+            >
+            </el-button>
+          </nobr>
+        </li>
+        <li v-for="category in list" :key="category.id">
+          <nobr>
+            <span v-if="!category.editingACategory">{{ category.name }}</span>
+            <el-input
+              v-if="category.editingACategory"
+              v-model="category.name"
+              clearable
+              :placeholder="`${tmpCategoryName}`"
+            >
+              <template slot="prepend">Category Name</template>
+            </el-input>
+            <el-button
+              v-if="!category.editingACategory"
+              type="primary"
+              icon="el-icon-edit"
+              size="medium"
+              circle
+              @click="editACategory(category)"
+            ></el-button>
+            <el-button
+              v-if="category.editingACategory"
+              type="success"
+              icon="el-icon-check"
+              circle
+              @click="saveACategory(category)"
+              :disabled="category.name == ''"
+            ></el-button>
+            <el-button
+              v-if="category.editingACategory"
+              type="warning"
+              icon="el-icon-close"
+              circle
+              @click="cancelCategoryEdit(category)"
+            ></el-button>
+            <el-button
+              v-if="category.editingACategory"
+              type="danger"
+              icon="el-icon-delete"
+              circle
+              @click="deleteACategory(category)"
+            ></el-button>
+          </nobr>
+          <ul>
+            <li>
+              <nobr>
+                <el-button
+                  v-if="!category.addingANewItem"
+                  type="primary"
+                  icon="el-icon-plus"
+                  size="medium"
+                  round
+                  @click="category.addingANewItem = !category.addingANewItem"
+                >
+                  New Item in {{ category.name }}
+                </el-button>
+                <el-input
+                  v-if="category.addingANewItem"
+                  v-model="category.newItem.name"
+                  clearable
+                  :placeholder="`Please enter a new item in ${category.name}`"
+                >
+                  <template slot="prepend">New Item Name</template>
+                </el-input>
+                <el-button
+                  v-if="category.addingANewItem"
+                  type="success"
+                  icon="el-icon-check"
+                  circle
+                  @click="addNewItem(category)"
+                  :disabled="category.newItem.name == ''"
+                ></el-button>
+                <el-button
+                  v-if="category.addingANewItem"
+                  type="danger"
+                  icon="el-icon-close"
+                  circle
+                  @click="category.addingANewItem = !category.addingANewItem"
+                ></el-button>
+              </nobr>
+            </li>
+            <li v-for="item in category.items" :key="item.id">
+              <nobr>
+                <span v-if="!item.editingAnItem">{{ item.name }}</span>
+                <el-input v-if="item.editingAnItem" v-model="item.name" clearable :placeholder="`${tmpItemName}`">
+                  <template slot="prepend">Item Name</template>
+                </el-input>
+                <el-button
+                  v-if="!item.editingAnItem"
+                  type="primary"
+                  icon="el-icon-edit"
+                  circle
+                  @click="editAnItem(item)"
+                ></el-button>
+                <el-button
+                  v-if="item.editingAnItem"
+                  type="success"
+                  icon="el-icon-check"
+                  circle
+                  @click="saveAnItem(item)"
+                  :disabled="item.name == ''"
+                ></el-button>
+                <el-button
+                  v-if="item.editingAnItem"
+                  type="warning"
+                  icon="el-icon-close"
+                  circle
+                  @click="cancelItemEdit(item)"
+                ></el-button>
+                <el-button
+                  v-if="item.editingAnItem"
+                  type="danger"
+                  icon="el-icon-delete"
+                  circle
+                  @click="deleteAnItem(category, item)"
+                ></el-button>
+              </nobr>
+            </li>
+          </ul>
+        </li>
+      </ul>
+      <br />
+      <br />
+      <br />
+      <br />
     </div>
 
     <div v-else-if="waitingForUSerData" class="lds-spinner">
@@ -53,7 +218,18 @@ export default {
   },
   data: () => {
     return {
-      counter: 0,
+      tmpCategoryName: '',
+      tmpItemName: '',
+      addingANewCategory: false,
+      list: null,
+      newCategory: {
+        name: '',
+        items: [],
+        newItem: { name: '', editingAnItem: false },
+        addingANewItem: false,
+        editingACategory: false
+      },
+
       user: {
         isLoggedIn: false,
         displayName: 'Not Logged In', // Placeholders for what google will return
@@ -88,26 +264,14 @@ export default {
 
     this.waitingForUSerData = true
 
-    //Here is the Firebase Authentication Magic happening returning a FireBase authenticated User
+    // Here is the Firebase Authentication Magic happening returning a FireBase authenticated User
     this.fb.auth().onAuthStateChanged((fbuser) => {
       if (fbuser != null) {
         this.user = fbuser
-
         this.user.isLoggedIn = true
-        var currentdate = new Date().toLocaleString()
 
-        this.firebaseDb
-          .collection('login')
-          .doc(this.user.uid)
-          .set({ lastLogin: this.user.displayName + ' : ' + currentdate })
-          .then(() => {
-            console.log('Last Login successfully written to firebase')
-          })
-
-        // Optionf to user Firebase Get command
-        var getOptions = {
-          source: 'default'
-        }
+        // Options to use Firebase Get command
+        var getOptions = { source: 'default' }
 
         this.firebaseDb
           .collection('login')
@@ -115,12 +279,12 @@ export default {
           .get(getOptions)
           .then((doc) => {
             this.currentUserLastLogin = doc.data().lastLogin
+            this.getList()
+            this.waitingForUSerData = false
           })
           .catch(function (error) {
             console.log('Error getting cached document:', error)
           })
-
-        this.waitingForUSerData = false
       } else {
         this.user.isLoggedIn = false
         this.waitingForUSerData = false
@@ -147,72 +311,161 @@ export default {
       this.fb
         .auth()
         .signInWithRedirect(provider)
-        .then((res) => {
-          this.user = res.user
-          this.user.isLoggedIn = true
-        })
-        .catch(function (error) {
-          const errorCode = error.code
-          const errorMessage = error.message
-          const email = error.email
-          const credential = error.credential
-          console.log(errorCode, errorMessage, email, credential)
-        })
-    },
-    logout() {
-      this.fb
-        .auth()
-        .signOut()
-        .then(() => {
-          this.user.isLoggedIn = false
-          this.waitingForUSerData = false
-
-          location.reload()
-        })
+        .then()
         .catch(function (error) {
           console.log(error)
         })
+    },
+    logout() {
+      let currentdate = new Date().toLocaleString()
+      this.firebaseDb
+        .collection('login')
+        .doc(this.user.uid)
+        .set({ lastLogin: this.user.displayName + ' : ' + currentdate })
+        .then(() => {
+          console.log('Last Logout successfully written to firebase')
+
+          this.fb
+            .auth()
+            .signOut()
+            .then(() => {
+              this.user.isLoggedIn = false
+              this.waitingForUSerData = false
+
+              location.reload()
+            })
+            .catch(function (error) {
+              console.log(error)
+            })
+
+          this.waitingForUSerData = false
+        })
+    },
+
+    saveList() {
+      this.firebaseDb
+        .collection('list')
+        .doc(this.user.uid)
+        .set({ list: this.list })
+        .then(() => {
+          this.waitingForUSerData = false
+        })
+    },
+
+    getList() {
+      this.waitingForUSerData = true
+      // Optionf to user Firebase Get command
+      var getOptions = {
+        source: 'default'
+      }
+
+      this.firebaseDb
+        .collection('list')
+        .doc(this.user.uid)
+        .get(getOptions)
+        .then((doc) => {
+          this.list = doc.data().list
+
+          this.list.map((category) => {
+            category.addingANewItem = false
+            category.editingACategory = false
+            category.newItem = { name: '', editingAnItem: false }
+          })
+
+          this.waitingForUSerData = false
+        })
+        .catch(function (error) {
+          console.log('Error getting cached document:', error)
+        })
+    },
+
+    addNewCategory() {
+      this.waitingForUSerData = true
+      this.list.unshift(this.newCategory)
+      this.newCategory = { name: '', editingACategory: false }
+      this.saveList()
+      this.addingANewCategory = false
+    },
+
+    deleteACategory(category) {
+      if (confirm(`Are you sure you want to delete the category ${category.name}?`) == true) {
+        this.waitingForUSerData = true
+
+        for (var i = 0; i < this.list.length; i++) {
+          if (this.list[i].name === category.name) {
+            this.list.splice(i, 1)
+          }
+        }
+
+        this.saveList()
+      } else {
+        category.editingACategory = !category.editingACategory
+      }
+    },
+
+    saveACategory(category) {
+      category.editingACategory = !category.editingACategory
+      this.saveList()
+    },
+    editACategory(category) {
+      this.tmpCategoryName = category.name
+      category.editingACategory = !category.editingACategory
+    },
+    cancelCategoryEdit(category) {
+      category.name = this.tmpCategoryName
+      category.editingACategory = !category.editingACategory
+    },
+
+    addNewItem(category) {
+      this.waitingForUSerData = true
+
+      for (var i = 0; i < this.list.length; i++) {
+        if (this.list[i].name === category.name) {
+          if (this.list[i].items.length > 0) {
+            this.list[i].items.unshift(category.newItem)
+          } else {
+            this.list[i].items.push(category.newItem)
+          }
+        }
+      }
+
+      category.newItem = { name: '', editingAnItem: false }
+
+      this.saveList()
+      category.addingANewItem = false
+    },
+
+    deleteAnItem(category, item) {
+      if (confirm(`Are you sure you want to delete the item ${item.name}?`) == true) {
+        this.waitingForUSerData = true
+
+        for (var i = 0; i < category.items.length; i++) {
+          if (category.items[i].name === item.name) {
+            category.items.splice(i, 1)
+          }
+        }
+
+        this.saveList()
+      } else {
+        item.editingAnItem = !item.editingAnItem
+      }
+    },
+
+    saveAnItem(item) {
+      this.waitingForUSerData = true
+      item.editingAnItem = !item.editingAnItem
+      this.saveList()
+    },
+
+    editAnItem(item) {
+      this.tmpItemName = item.name
+      item.editingAnItem = !item.editingAnItem
+    },
+
+    cancelItemEdit(item) {
+      item.name = this.tmpItemName
+      item.editingAnItem = !item.editingAnItem
     }
   }
 }
 </script>
-
-<style>
-.lds-facebook {
-  display: inline-block;
-  position: relative;
-  width: 80px;
-  height: 80px;
-}
-.lds-facebook div {
-  display: inline-block;
-  position: absolute;
-  left: 8px;
-  width: 16px;
-  background: #fff;
-  animation: lds-facebook 1.2s cubic-bezier(0, 0.5, 0.5, 1) infinite;
-}
-.lds-facebook div:nth-child(1) {
-  left: 8px;
-  animation-delay: -0.24s;
-}
-.lds-facebook div:nth-child(2) {
-  left: 32px;
-  animation-delay: -0.12s;
-}
-.lds-facebook div:nth-child(3) {
-  left: 56px;
-  animation-delay: 0;
-}
-@keyframes lds-facebook {
-  0% {
-    top: 8px;
-    height: 64px;
-  }
-  50%,
-  100% {
-    top: 24px;
-    height: 32px;
-  }
-}
-</style>
