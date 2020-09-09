@@ -16,7 +16,7 @@
               icon="el-icon-plus"
               size="medium"
               round
-              @click="addingANewCategory = !addingANewCategory"
+              @click="startAddANewCategory()"
               >New Category</el-button
             >
             <el-input
@@ -202,8 +202,6 @@
 /* eslint-disable prefer-const */
 /* eslint-disable no-console */
 /* eslint-disable no-var */
-import Task from '@/components/Task.vue'
-import Presentation from '@/components/Presentation.vue'
 
 import firebase from 'firebase/app'
 import 'firebase/auth'
@@ -212,10 +210,7 @@ import 'firebase/firestore'
 // When a user logs in or out, save that in the store
 
 export default {
-  components: {
-    Task,
-    Presentation
-  },
+  components: {},
   data: () => {
     return {
       tmpCategoryName: '',
@@ -398,6 +393,11 @@ export default {
         })
     },
 
+    startAddANewCategory() {
+      this.newCategory.name = ''
+      this.addingANewCategory = !this.addingANewCategory
+    },
+
     addNewCategory() {
       this.waitingForUSerData = true
 
@@ -407,9 +407,12 @@ export default {
         this.list.unshift(this.newCategory)
       }
 
-      this.newCategory = { name: '', editingACategory: false, items: [] }
-      this.saveList()
       this.addingANewCategory = false
+
+      //Need this bulshit because Javascript is still javascript and it is allways copuing objects by reference and the other cloning methods didn' work, so i need to reset the new category
+      this.newCategory = JSON.parse(JSON.stringify(this.newCategory))
+
+      this.saveList()
     },
 
     deleteACategory(category) {
