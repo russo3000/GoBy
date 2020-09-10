@@ -2,12 +2,13 @@
   <nobr>
     <span v-if="!item.editingAnItem">{{ item.name }}</span>
     <el-input v-if="item.editingAnItem" v-model="item.name" clearable :placeholder="`${tmpItemName}`">
-      <template slot="prepend">Item Name</template>
+      <!-- <template slot="prepend">Item Name</template> -->
     </el-input>
     <el-button
       v-if="!item.editingAnItem"
       type="primary"
       icon="el-icon-edit"
+      size="mini"
       circle
       @click="editAnItem(item)"
     ></el-button>
@@ -16,6 +17,7 @@
       type="success"
       icon="el-icon-check"
       circle
+      size="mini"
       :disabled="item.name == ''"
       @click="saveAnItem(item)"
     ></el-button>
@@ -24,6 +26,7 @@
       type="warning"
       icon="el-icon-close"
       circle
+      size="mini"
       @click="cancelItemEdit(item)"
     ></el-button>
     <el-button
@@ -31,6 +34,7 @@
       type="danger"
       icon="el-icon-delete"
       circle
+      size="mini"
       @click="deleteAnItem(category, item)"
     ></el-button>
   </nobr>

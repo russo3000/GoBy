@@ -2,13 +2,13 @@
   <nobr>
     <span v-if="!category.editingACategory">{{ category.name }}</span>
     <el-input v-if="category.editingACategory" v-model="category.name" clearable :placeholder="`${tmpCategoryName}`">
-      <template slot="prepend">Category Name</template>
+      <!--<template slot="prepend">Category Name</template>-->
     </el-input>
     <el-button
       v-if="!category.editingACategory"
       type="primary"
       icon="el-icon-edit"
-      size="medium"
+      size="mini"
       circle
       @click="editACategory(category)"
     ></el-button>
@@ -17,6 +17,7 @@
       type="success"
       icon="el-icon-check"
       circle
+      size="mini"
       :disabled="category.name == ''"
       @click="saveACategory(category)"
     ></el-button>
@@ -25,6 +26,7 @@
       type="warning"
       icon="el-icon-close"
       circle
+      size="mini"
       @click="cancelCategoryEdit(category)"
     ></el-button>
     <el-button
@@ -32,6 +34,7 @@
       type="danger"
       icon="el-icon-delete"
       circle
+      size="mini"
       @click="deleteACategory(category)"
     ></el-button>
   </nobr>

@@ -7,6 +7,7 @@
           <div class="appName">Goby</div>
         </div>
 
+        <div id="headerNewCategory"><NewCategory></NewCategory></div>
         <div id="avatar">
           <img :src="user.photoURL" class="avatar" />
 
@@ -15,51 +16,22 @@
           </div>
         </div>
       </div>
-      <br />
-
-      <div id="carrousel" class="flex-container">
-        <div>1</div>
-        <div>2</div>
-        <div>3</div>
-        <div>1</div>
-        <div>2</div>
-        <div>3</div>
-        <div>1</div>
-        <div>2</div>
-        <div>3</div>
-        <div>1</div>
-        <div>2</div>
-        <div>3</div>
-        <div>1</div>
-        <div>2</div>
-        <div>3</div>
-        <div>1</div>
-        <div>2</div>
-        <div>3</div>
-        <div>1</div>
-        <div>2</div>
-        <div>LAST</div>
-      </div>
-
-      <p>A Flexible Layout must have a parent element with the <em>display</em> property set to <em>flex</em>.</p>
-
-      <p>Direct child elements(s) of the flexible container automatically becomes flexible items.</p>
-
-      <br />
       <ul>
+        <!--
         <li>
           <NewCategory></NewCategory>
         </li>
+        -->
         <li v-for="category in list" :key="category.id">
           <Category :category="category"></Category>
-          <ul>
-            <li>
+          <div class="carrousel flex-container">
+            <div>
               <NewItem :category="category"></NewItem>
-            </li>
-            <li v-for="item in category.items" :key="item.id">
+            </div>
+            <div v-for="item in category.items" :key="item.id">
               <Item :category="category" :item="item"></Item>
-            </li>
-          </ul>
+            </div>
+          </div>
         </li>
       </ul>
       <br />
@@ -300,7 +272,9 @@ export default {
   margin-left: 3vw;
   margin-top: 2vw;
 }
-
+#headerNewCategory {
+  margin-top: 2vw;
+}
 .appName {
   margin-top: 2vw;
   margin-left: 10vw;
@@ -317,23 +291,38 @@ export default {
 
 .avatar {
   vertical-align: middle;
-  width: 7vw;
-  height: 7vw;
+  width: 8vw;
+  height: 8vw;
   border-radius: 50%;
 }
 
+ul {
+  list-style: none;
+  padding: 0;
+}
 #carrousel {
   overflow: scroll;
   width: 100vw !important;
 }
+
+.carrousel {
+  overflow: scroll;
+  width: 100vw !important;
+}
+
 .flex-container {
   display: flex;
 }
 
 .flex-container > div {
   background-color: #f1f1f1;
-  margin: 10px;
-  padding: 20px;
-  font-size: 30px;
+  margin: 5vw;
+  padding: 5vw;
+  font-size: 5vw;
+  width: 100vw;
+}
+
+input {
+  width: 50vw;
 }
 </style>

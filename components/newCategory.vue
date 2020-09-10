@@ -5,7 +5,7 @@
       v-if="!addingANewCategory"
       type="success"
       icon="el-icon-plus"
-      size="medium"
+      size="mini"
       round
       @click="startAddANewCategory()"
       >New Category</el-button
@@ -14,15 +14,17 @@
       v-if="addingANewCategory"
       v-model="newCategory.name"
       clearable
+      size="mini"
       placeholder="Please input a new Category Name"
     >
-      <template slot="prepend">New Category Name</template>
+      <!--<template slot="prepend">New Category Name</template>-->
     </el-input>
     <el-button
       v-if="addingANewCategory"
       type="success"
       icon="el-icon-check"
       circle
+      size="mini"
       :disabled="newCategory.name == ''"
       @click="addNewCategory()"
     >
@@ -32,6 +34,7 @@
       type="danger"
       icon="el-icon-close"
       circle
+      size="mini"
       @click="addingANewCategory = !addingANewCategory"
     >
     </el-button>
