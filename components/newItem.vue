@@ -1,42 +1,44 @@
 <template>
-  <nobr>
-    <el-button
-      v-if="!category.addingANewItem"
-      type="primary"
-      icon="el-icon-plus"
-      size="mini"
-      round
-      @click="category.addingANewItem = !category.addingANewItem"
-    >
-      New Item in {{ category.name }}
-    </el-button>
-    <el-input
-      v-if="category.addingANewItem"
-      v-model="category.newItem.name"
-      clearable
-      size="mini"
-      :placeholder="`Please enter a new item in ${category.name}`"
-    >
-      <!--<template slot="prepend">New Item Name</template>-->
-    </el-input>
-    <el-button
-      v-if="category.addingANewItem"
-      type="success"
-      icon="el-icon-check"
-      circle
-      size="mini"
-      :disabled="category.newItem.name == ''"
-      @click="addNewItem(category)"
-    ></el-button>
-    <el-button
-      v-if="category.addingANewItem"
-      type="danger"
-      icon="el-icon-close"
-      circle
-      size="mini"
-      @click="category.addingANewItem = !category.addingANewItem"
-    ></el-button>
-  </nobr>
+  <div>
+    <nobr>
+      <el-button
+        v-if="!category.addingANewItem"
+        type="primary"
+        icon="el-icon-plus"
+        size="mini"
+        round
+        @click="category.addingANewItem = !category.addingANewItem"
+      >
+        New Item in {{ category.name }}
+      </el-button>
+      <el-input
+        v-if="category.addingANewItem"
+        v-model="category.newItem.name"
+        clearable
+        size="mini"
+        :placeholder="`Please enter a new item in ${category.name}`"
+      >
+        <!--<template slot="prepend">New Item Name</template>-->
+      </el-input>
+      <el-button
+        v-if="category.addingANewItem"
+        type="success"
+        icon="el-icon-check"
+        circle
+        size="mini"
+        :disabled="category.newItem.name == ''"
+        @click="addNewItem(category)"
+      ></el-button>
+      <el-button
+        v-if="category.addingANewItem"
+        type="danger"
+        icon="el-icon-close"
+        circle
+        size="mini"
+        @click="category.addingANewItem = !category.addingANewItem"
+      ></el-button>
+    </nobr>
+  </div>
 </template>
 
 <script>

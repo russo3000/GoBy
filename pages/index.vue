@@ -8,14 +8,18 @@
         </div>
 
         <div id="headerNewCategory"><NewCategory></NewCategory></div>
+      </div>
+
+      <div id="friends">
         <div id="avatar">
           <img :src="user.photoURL" class="avatar" />
-
-          <div style="display: none">
-            Last Login: {{ currentUserLastLogin }} <button @click="logout()">Logout</button>
-          </div>
+        </div>
+        <div id="logout">
+          <div style="display: none">Last Login: {{ currentUserLastLogin }}</div>
+          <button @click="logout()">Logout</button>
         </div>
       </div>
+
       <ul>
         <!--
         <li>
@@ -25,12 +29,11 @@
         <li v-for="category in list" :key="category.id">
           <Category :category="category"></Category>
           <div class="carrousel flex-container">
-            <div>
-              <NewItem :category="category"></NewItem>
-            </div>
             <div v-for="item in category.items" :key="item.id">
               <Item :category="category" :item="item"></Item>
             </div>
+
+            <NewItem :category="category"></NewItem>
           </div>
         </li>
       </ul>
@@ -274,6 +277,7 @@ export default {
 }
 #headerNewCategory {
   margin-top: 2vw;
+  margin-right: 3vw;
 }
 .appName {
   margin-top: 2vw;
@@ -316,13 +320,33 @@ ul {
 
 .flex-container > div {
   background-color: #f1f1f1;
-  margin: 5vw;
-  padding: 5vw;
+  margin: 2vw;
+  padding: 12vw;
   font-size: 5vw;
   width: 100vw;
 }
 
 input {
-  width: 50vw;
+  width: 10vw;
+}
+
+#friends {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #ccc;
+  border-top: 1px solid #ccc;
+  width: 100vw !important;
+  padding-left: 2vw;
+  padding-bottom: 2vw;
+}
+
+#logout {
+  padding-top: 2vw;
+  padding-right: 4vw;
+}
+
+.el-input {
+  margin-top: 1vw;
+  width: 70%;
 }
 </style>
