@@ -1,11 +1,50 @@
 <template>
   <div class="app">
+    <div id="bkg"></div>
     <div v-if="user.isLoggedIn">
-      <img :src="user.photoURL" class="avatar" />
+      <div id="header">
+        <div id="logo">
+          <div class="appName">Goby</div>
+        </div>
 
-      <div>Last Login: {{ currentUserLastLogin }} <button @click="logout()">Logout</button></div>
+        <div id="avatar">
+          <img :src="user.photoURL" class="avatar" />
 
+          <div style="display: none">
+            Last Login: {{ currentUserLastLogin }} <button @click="logout()">Logout</button>
+          </div>
+        </div>
+      </div>
       <br />
+
+      <div id="carrousel" class="flex-container">
+        <div>1</div>
+        <div>2</div>
+        <div>3</div>
+        <div>1</div>
+        <div>2</div>
+        <div>3</div>
+        <div>1</div>
+        <div>2</div>
+        <div>3</div>
+        <div>1</div>
+        <div>2</div>
+        <div>3</div>
+        <div>1</div>
+        <div>2</div>
+        <div>3</div>
+        <div>1</div>
+        <div>2</div>
+        <div>3</div>
+        <div>1</div>
+        <div>2</div>
+        <div>LAST</div>
+      </div>
+
+      <p>A Flexible Layout must have a parent element with the <em>display</em> property set to <em>flex</em>.</p>
+
+      <p>Direct child elements(s) of the flexible container automatically becomes flexible items.</p>
+
       <br />
       <ul>
         <li>
@@ -232,3 +271,69 @@ export default {
   }
 }
 </script>
+
+<style>
+#bkg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 360px;
+  height: 730px;
+  z-index: -1;
+  background-image: url('/img/yt1.jpg');
+  background-repeat: no-repeat;
+  background-size: 360px 730px;
+  opacity: 0;
+}
+
+#header {
+  display: flex;
+  justify-content: space-between;
+  height: 12vw;
+}
+
+#logo {
+  display: flex;
+  background-image: url('/img/goby.png');
+  background-repeat: no-repeat;
+  background-size: 8vw 8vw;
+  margin-left: 3vw;
+  margin-top: 2vw;
+}
+
+.appName {
+  margin-top: 2vw;
+  margin-left: 10vw;
+  font-weight: bold;
+  color: #0077f3;
+}
+
+#avatar {
+  display: flex;
+  width: 7vw !important;
+  margin-top: 2vw;
+  margin-right: 3vw;
+}
+
+.avatar {
+  vertical-align: middle;
+  width: 7vw;
+  height: 7vw;
+  border-radius: 50%;
+}
+
+#carrousel {
+  overflow: scroll;
+  width: 100vw !important;
+}
+.flex-container {
+  display: flex;
+}
+
+.flex-container > div {
+  background-color: #f1f1f1;
+  margin: 10px;
+  padding: 20px;
+  font-size: 30px;
+}
+</style>
