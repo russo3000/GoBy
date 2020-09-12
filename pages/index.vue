@@ -1,13 +1,20 @@
 <template>
   <div class="app">
     <div id="bkg"></div>
+
+    <Login v-if="!user.isLoggedIn" :user="user" :fb="fb"></Login>
+
+    <!-- <LoaderCss v-if="waitingForUSerData"></LoaderCss>-->
+
     <div v-if="user.isLoggedIn">
       <div id="header">
         <div id="logo">
           <div class="appName">Goby</div>
         </div>
 
-        <div id="headerNewCategory"><NewCategory></NewCategory></div>
+        <div id="headerNewCategory">
+          <NewCategory></NewCategory>
+        </div>
       </div>
 
       <div id="friends">
@@ -19,34 +26,18 @@
           <button @click="logout()">Logout</button>
         </div>
       </div>
-
       <ul>
-        <!--
-        <li>
-          <NewCategory></NewCategory>
-        </li>
-        -->
         <li v-for="category in list" :key="category.id">
           <Category :category="category"></Category>
           <div class="carrousel flex-container">
             <div v-for="item in category.items" :key="item.id">
               <Item :category="category" :item="item"></Item>
             </div>
-
             <NewItem :category="category"></NewItem>
           </div>
         </li>
       </ul>
-      <br />
-      <br />
-      <br />
-      <br />
     </div>
-
-    <LoaderCss v-else-if="waitingForUSerData"></LoaderCss>
-
-    <button v-if="!waitingForUSerData && !user.isLoggedIn" @click="login('google')">Sign In with Google</button>
-    <button v-if="!waitingForUSerData && !user.isLoggedIn" @click="login('facebook')">Sign In with FB</button>
   </div>
 </template>
 
@@ -66,13 +57,14 @@ import 'firebase/auth'
 import 'firebase/firestore'
 
 import LoaderCss from '@/components/loader.vue'
+import Login from '@/components/Login.vue'
 import newCategory from '@/components/newCategory.vue'
 import Category from '@/components/Category.vue'
 import newItem from '@/components/newItem.vue'
 import Item from '@/components/Item.vue'
 
 export default {
-  components: { LoaderCss, newCategory, Category, newItem, Item },
+  components: { LoaderCss, Login, newCategory, Category, newItem, Item },
   data: () => {
     return {
       list: null,
@@ -97,7 +89,7 @@ export default {
       firebaseDb: null
     }
   },
-
+  mounted() {},
   created() {
     this.fb = firebase
 
@@ -139,29 +131,6 @@ export default {
   },
 
   methods: {
-    login(providerType) {
-      var provider = null
-
-      switch (providerType) {
-        case 'facebook':
-          provider = new this.fb.auth.FacebookAuthProvider()
-          break
-        case 'google':
-          provider = new this.fb.auth.GoogleAuthProvider()
-          break
-        default:
-          alert(providerType + 'Not Supported')
-          break
-      }
-
-      this.fb
-        .auth()
-        .signInWithRedirect(provider)
-        .then()
-        .catch(function (error) {
-          console.log(error)
-        })
-    },
     logout() {
       let currentdate = new Date().toLocaleString()
       this.firebaseDb

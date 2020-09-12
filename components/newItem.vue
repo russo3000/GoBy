@@ -54,11 +54,7 @@ export default {
 
       for (let i = 0; i < this.$parent.list.length; i++) {
         if (this.$parent.list[i].name === category.name) {
-          if (this.$parent.list[i].items.length > 0) {
-            this.$parent.list[i].items.unshift(category.newItem)
-          } else {
-            this.$parent.list[i].items.push(category.newItem)
-          }
+          this.$parent.list[i].items.push(category.newItem)
         }
       }
 

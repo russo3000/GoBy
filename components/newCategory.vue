@@ -69,7 +69,7 @@ export default {
       if (this.$parent.list == null) {
         this.$parent.list = [this.newCategory]
       } else {
-        this.$parent.list.unshift(this.newCategory)
+        this.$parent.list.push(this.newCategory)
       }
 
       this.addingANewCategory = false
