@@ -19,27 +19,27 @@ export default {
     fb: { type: Object, required: true }
   },
   data() {
-    return {}
+    return {
+      token: ''
+    }
   },
   mounted() {
     const imageNameNumber = Math.floor(Math.random() * 42)
     const imageName = "url('/img/items/" + imageNameNumber + ".jpg')"
-
     const login = window.document.querySelector('#login')
+
     login.style.setProperty('background-image', imageName)
     login.style.setProperty('height', window.innerHeight + 'px')
     login.style.setProperty('background-size', '100% ' + window.innerHeight + 'px')
   },
-  created() {
-    console.log('login created')
-  },
+  created() {},
   methods: {
     login(providerType) {
       let provider = null
 
       switch (providerType) {
         case 'facebook':
-          provider = new this.fb.auth.FacebookAuthProvider()
+          provider = new this.fb.auth.FacebookAuthProvider().addScope('user_friends')
           break
         case 'google':
           provider = new this.fb.auth.GoogleAuthProvider()
@@ -51,11 +51,21 @@ export default {
 
       this.fb
         .auth()
-        .signInWithRedirect(provider)
-        .then()
+        .signInWithPopup(provider)
+        .then((result) => {
+          this.token = result.credential.accessToken
+          this.$parent.user_friends = JSON.parse(this.getFacebookFriendsList()).data
+        })
         .catch(function (error) {
           console.log(error)
         })
+    },
+    getFacebookFriendsList() {
+      const graphUrl = 'https://graph.facebook.com/me/friends?access_token=' + this.token + '&fields=name,id,picture'
+      const xmlHttp = new XMLHttpRequest()
+      xmlHttp.open('GET', graphUrl, false) // false for synchronous request
+      xmlHttp.send(null)
+      return xmlHttp.responseText
     }
   }
 }

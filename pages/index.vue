@@ -21,6 +21,12 @@
         <div id="avatar">
           <img :src="user.photoURL" class="avatar" />
         </div>
+
+        <div v-for="friend in user_friends" :key="friend.id">
+          <img :src="friend.picture.data.url" class="avatar" />
+          {{ friend.name }}
+        </div>
+
         <div id="logout">
           <div style="display: none">Last Login: {{ currentUserLastLogin }}</div>
           <button @click="logout()">Logout</button>
@@ -73,8 +79,10 @@ export default {
         displayName: 'Not Logged In', // Placeholders for what google will return
         photoURL: '' // Placeholders for what google will return
       },
+      user_friends: null,
       waitingForUSerData: false,
       currentUserLastLogin: '',
+      token: '',
       firebaseConfig: {
         apiKey: 'AIzaSyB_s6xHy0taW3IPki18O01VR9SFVpvfDIk',
         authDomain: 'goby-71f9f.firebaseapp.com',
@@ -106,6 +114,9 @@ export default {
     this.fb.auth().onAuthStateChanged((fbuser) => {
       if (fbuser != null) {
         this.user = fbuser
+
+        console.log(this.user)
+
         this.user.isLoggedIn = true
 
         // Options to use Firebase Get command
@@ -113,12 +124,15 @@ export default {
 
         this.firebaseDb
           .collection('login')
-          .doc(this.user.uid)
+          .doc(this.user.providerData[0].uid)
           .get(getOptions)
           .then((doc) => {
             this.currentUserLastLogin = doc.data().lastLogin
             this.getList()
             this.waitingForUSerData = false
+
+            console.log(this.user_friends[0])
+            console.log(this.user_friends[0].name)
           })
           .catch(function (error) {
             console.log('Error getting cached document:', error)
@@ -135,7 +149,7 @@ export default {
       let currentdate = new Date().toLocaleString()
       this.firebaseDb
         .collection('login')
-        .doc(this.user.uid)
+        .doc(this.user.providerData[0].uid)
         .set({ lastLogin: this.user.displayName + ' : ' + currentdate })
         .then(() => {
           console.log('Last Logout successfully written to firebase')
@@ -173,7 +187,7 @@ export default {
 
           this.firebaseDb
             .collection('list')
-            .doc(this.user.uid)
+            .doc(this.user.providerData[0].uid)
             .set({ list: this.list })
             .then(() => {
               this.waitingForUSerData = false
@@ -224,10 +238,10 @@ export default {
   width: 360px;
   height: 730px;
   z-index: -1;
-  background-image: url('/img/yt1.jpg');
+  background-image: url('/img/yt2.png');
   background-repeat: no-repeat;
   background-size: 360px 730px;
-  opacity: 0;
+  opacity: 0.2;
 }
 
 #header {
