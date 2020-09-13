@@ -2,9 +2,9 @@
   <div class="app">
     <div id="bkg"></div>
 
-    <Login v-if="!user.isLoggedIn" :user="user" :fb="fb"></Login>
+    <Login v-if="!waitingForUSerData && !user.isLoggedIn" :user="user" :fb="fb"></Login>
 
-    <!-- <LoaderCss v-if="waitingForUSerData"></LoaderCss>-->
+    <LoaderCss v-if="waitingForUSerData"></LoaderCss>
 
     <div v-if="user.isLoggedIn">
       <div id="header">

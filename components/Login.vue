@@ -14,19 +14,25 @@
 
 <script>
 export default {
-  props: { user: { type: Object, required: true }, fb: { type: Object, required: true } },
+  props: {
+    user: { type: Object, required: true },
+    fb: { type: Object, required: true }
+  },
   data() {
     return {}
   },
   mounted() {
     const imageNameNumber = Math.floor(Math.random() * 42)
     const imageName = "url('/img/items/" + imageNameNumber + ".jpg')"
+
     const login = window.document.querySelector('#login')
     login.style.setProperty('background-image', imageName)
     login.style.setProperty('height', window.innerHeight + 'px')
     login.style.setProperty('background-size', '100% ' + window.innerHeight + 'px')
   },
-  created() {},
+  created() {
+    console.log('login created')
+  },
   methods: {
     login(providerType) {
       let provider = null
