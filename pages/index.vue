@@ -72,6 +72,18 @@ import Category from '@/components/Category.vue'
 import newItem from '@/components/newItem.vue'
 import Item from '@/components/Item.vue'
 
+/*
+user_friends: [
+        {
+          name: 'Jason Essebag',
+          picture: {
+            data: {
+              url: 'https://miro.medium.com/fit/c/336/336/0*H3IJ5FkJ1ut-xekL.'
+            }
+          }
+        }
+      ]
+*/
 export default {
   components: { LoaderCss, Login, newCategory, Category, newItem, Item },
   data: () => {
@@ -83,16 +95,7 @@ export default {
         displayName: 'Not Logged In', // Placeholders for what google will return
         photoURL: '' // Placeholders for what google will return
       },
-      user_friends: [
-        {
-          name: 'Jason Essebag',
-          picture: {
-            data: {
-              url: 'https://miro.medium.com/fit/c/336/336/0*H3IJ5FkJ1ut-xekL.'
-            }
-          }
-        }
-      ],
+      user_friends: null,
       waitingForUSerData: false,
       currentUserLastLogin: '',
       token: '',
