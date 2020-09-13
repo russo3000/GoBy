@@ -6,32 +6,29 @@
 
     <LoaderCss v-if="waitingForUSerData"></LoaderCss>
 
-    <div v-if="user.isLoggedIn">
+    <div v-if="user.isLoggedIn" id="main">
       <div id="header">
         <div id="logo">
           <div class="appName">Goby</div>
         </div>
 
-        <div id="headerNewCategory">
-          <NewCategory></NewCategory>
-        </div>
-      </div>
-
-      <div id="friends">
-        <div id="avatar">
+        <div id="avatar" @click="loggingOut = !loggingOut">
           <img :src="user.photoURL" class="avatar" />
         </div>
-
-        <div v-for="friend in user_friends" :key="friend.id">
-          <img :src="friend.picture.data.url" class="avatar" />
-          {{ friend.name }}
-        </div>
-
-        <div id="logout">
+        <div id="logout" v-if="loggingOut">
           <div style="display: none">Last Login: {{ currentUserLastLogin }}</div>
           <button @click="logout()">Logout</button>
         </div>
       </div>
+
+      <div id="friends">
+        <div v-for="friend in user_friends" :key="friend.id">
+          <img :src="friend.picture.data.url" class="friend-avatar" />
+          <br />
+          <div class="friend-name">{{ friend.name }}</div>
+        </div>
+      </div>
+
       <ul>
         <li v-for="category in list" :key="category.id">
           <Category :category="category"></Category>
@@ -43,6 +40,12 @@
           </div>
         </li>
       </ul>
+
+      <div id="headerNewCategory">
+        <NewCategory></NewCategory>
+      </div>
+      <br />
+      &nbsp;
     </div>
   </div>
 </template>
@@ -74,12 +77,22 @@ export default {
   data: () => {
     return {
       list: null,
+      loggingOut: false,
       user: {
         isLoggedIn: false,
         displayName: 'Not Logged In', // Placeholders for what google will return
         photoURL: '' // Placeholders for what google will return
       },
-      user_friends: null,
+      user_friends: [
+        {
+          name: 'Jason Essebag',
+          picture: {
+            data: {
+              url: 'https://miro.medium.com/fit/c/336/336/0*H3IJ5FkJ1ut-xekL.'
+            }
+          }
+        }
+      ],
       waitingForUSerData: false,
       currentUserLastLogin: '',
       token: '',
@@ -205,7 +218,7 @@ export default {
 
       this.firebaseDb
         .collection('list')
-        .doc(this.user.uid)
+        .doc(this.user.providerData[0].uid)
         .get(getOptions)
         .then((doc) => {
           this.list = doc.data().list
@@ -241,9 +254,11 @@ export default {
   background-image: url('/img/yt2.png');
   background-repeat: no-repeat;
   background-size: 360px 730px;
-  opacity: 0.2;
+  opacity: 0;
 }
 
+#main {
+}
 #header {
   display: flex;
   justify-content: space-between;
@@ -259,8 +274,7 @@ export default {
   margin-top: 2vw;
 }
 #headerNewCategory {
-  margin-top: 2vw;
-  margin-right: 3vw;
+  margin-left: 3vw;
 }
 .appName {
   margin-top: 2vw;
@@ -281,6 +295,29 @@ export default {
   width: 8vw;
   height: 8vw;
   border-radius: 50%;
+}
+
+#friends {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #ccc;
+  border-top: 1px solid #ccc;
+  padding-left: 2vw;
+  padding-bottom: 2vw;
+  height: 23vw;
+}
+
+.friend-name {
+  font-size: 3vw;
+  margin-top: 2vw;
+}
+.friend-avatar {
+  vertical-align: middle;
+  width: 14vw;
+  height: 14vw;
+  border-radius: 50%;
+  margin-top: 3vw;
+  margin-left: 2vw;
 }
 
 ul {
@@ -311,16 +348,6 @@ ul {
 
 input {
   width: 10vw;
-}
-
-#friends {
-  display: flex;
-  justify-content: space-between;
-  border-bottom: 1px solid #ccc;
-  border-top: 1px solid #ccc;
-  width: 100vw !important;
-  padding-left: 2vw;
-  padding-bottom: 2vw;
 }
 
 #logout {
