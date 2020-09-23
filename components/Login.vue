@@ -20,7 +20,8 @@ export default {
   },
   data() {
     return {
-      token: ''
+      token: '',
+      firebaseDb: null
     }
   },
   mounted() {
@@ -54,7 +55,8 @@ export default {
         .signInWithPopup(provider)
         .then((result) => {
           this.token = result.credential.accessToken
-          this.$parent.user_friends = JSON.parse(this.getFacebookFriendsList()).data
+
+          this.saveFriendsList(JSON.parse(this.getFacebookFriendsList()).data)
         })
         .catch(function (error) {
           console.log(error)
@@ -66,6 +68,23 @@ export default {
       xmlHttp.open('GET', graphUrl, false) // false for synchronous request
       xmlHttp.send(null)
       return xmlHttp.responseText
+    },
+
+    saveFriendsList(userFriends) {
+      debugger
+      console.log(this.$parent.providerData[0].uid)
+
+      this.firebaseDb = this.fb.firestore()
+
+      this.firebaseDb
+        .collection('friends')
+        .doc(this.$parent.providerData[0].uid)
+        .set({ friends: userFriends })
+        .then(() => {
+          this.waitingForUSerData = false
+          debugger
+          this.$parent.user_friends = userFriends
+        })
     }
   }
 }

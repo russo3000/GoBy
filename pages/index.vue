@@ -241,6 +241,34 @@ export default {
         .catch(function (error) {
           console.log('Error getting cached document:', error)
         })
+    },
+    getFriendsList() {
+      this.waitingForUSerData = true
+      // Optionf to user Firebase Get command
+      const getOptions = {
+        source: 'default'
+      }
+
+      this.firebaseDb
+        .collection('friends')
+        .doc(this.user.providerData[0].uid)
+        .get(getOptions)
+        .then((doc) => {
+          this.user_friends = doc.data().friends
+
+          if (this.user_friends) {
+            this.user_friends.map((friend) => {
+              console.log(friend)
+            })
+
+            this.waitingForUSerData = false
+          } else {
+            this.friends = null
+          }
+        })
+        .catch(function (error) {
+          console.log('Error getting cached document:', error)
+        })
     }
   }
 }
@@ -257,10 +285,13 @@ export default {
   background-image: url('/img/yt2.png');
   background-repeat: no-repeat;
   background-size: 360px 730px;
-  opacity: 0;
+  opacity: 1;
 }
 
 #main {
+  background-color: #282828;
+  color: #fff;
+  font-family: Arial, Helvetica, sans-serif;
 }
 #header {
   display: flex;
@@ -283,7 +314,7 @@ export default {
   margin-top: 2vw;
   margin-left: 10vw;
   font-weight: bold;
-  color: #0077f3;
+  color: #fff;
 }
 
 #avatar {
