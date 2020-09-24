@@ -22,7 +22,13 @@
       </div>
 
       <div id="friends">
-        <div v-for="friend in user_friends" :key="friend.id">
+        <div @click="getMyPlaces()">
+          <img :src="user.photoURL" class="friend-avatar" />
+          <br />
+          <div class="friend-name">Me</div>
+        </div>
+
+        <div v-for="friend in user_friends" :key="friend.id" @click="getFriendsPlaces(friend.id)">
           <img :src="friend.picture.data.url" class="friend-avatar" />
           <br />
           <div class="friend-name">{{ friend.name }}</div>
@@ -36,12 +42,13 @@
             <div v-for="item in category.items" :key="item.id">
               <Item :category="category" :item="item"></Item>
             </div>
-            <NewItem :category="category"></NewItem>
+            <NewItem :category="category" v-if="!showingFriendsPlaces"></NewItem>
           </div>
         </li>
       </ul>
+      <div v-if="!list"><center>There are no Categories to Show</center></div>
 
-      <div id="headerNewCategory">
+      <div id="headerNewCategory" v-if="!showingFriendsPlaces">
         <NewCategory></NewCategory>
       </div>
       <br />
@@ -97,6 +104,7 @@ export default {
       },
       user_friends: null,
       waitingForUSerData: false,
+      showingFriendsPlaces: false,
       currentUserLastLogin: '',
       token: '',
       firebaseConfig: {
@@ -142,8 +150,8 @@ export default {
           .get(getOptions)
           .then((doc) => {
             this.currentUserLastLogin = doc.data().lastLogin
-            this.getList()
-            this.getFriendsList()
+            this.getList(this.user.providerData[0].uid)
+            this.getFriendsList(this.user.providerData[0].uid)
             this.waitingForUSerData = false
           })
           .catch(function (error) {
@@ -208,7 +216,7 @@ export default {
       }
     },
 
-    getList() {
+    getList(uid) {
       this.waitingForUSerData = true
       // Optionf to user Firebase Get command
       var getOptions = {
@@ -217,46 +225,48 @@ export default {
 
       this.firebaseDb
         .collection('list')
-        .doc(this.user.providerData[0].uid)
+        .doc(uid)
         .get(getOptions)
         .then((doc) => {
-          this.list = doc.data().list
+          if (doc.data()) {
+            this.list = doc.data().list
 
-          if (this.list) {
-            this.list.map((category) => {
-              category.addingANewItem = false
-              category.editingACategory = false
-              category.newItem = { name: '', editingAnItem: false }
-            })
+            if (this.list) {
+              this.list.map((category) => {
+                category.addingANewItem = false
+                category.editingACategory = false
+                category.newItem = { name: '', editingAnItem: false }
+              })
 
-            this.waitingForUSerData = false
+              this.waitingForUSerData = false
+            } else {
+              this.list = null
+              this.waitingForUSerData = false
+            }
           } else {
             this.list = null
+            this.waitingForUSerData = false
           }
         })
         .catch(function (error) {
           console.log('Error getting cached document:', error)
         })
     },
-    getFriendsList() {
+    getFriendsList(uid) {
       this.waitingForUSerData = true
-      // Optionf to user Firebase Get command
+      // Option to user Firebase Get command
       const getOptions = {
         source: 'default'
       }
 
       this.firebaseDb
         .collection('friends')
-        .doc(this.user.providerData[0].uid)
+        .doc(uid)
         .get(getOptions)
         .then((doc) => {
           this.user_friends = doc.data().friends
 
           if (this.user_friends) {
-            this.user_friends.map((friend) => {
-              console.log(friend)
-            })
-
             this.waitingForUSerData = false
           } else {
             this.friends = null
@@ -265,6 +275,16 @@ export default {
         .catch(function (error) {
           console.log('Error getting cached document:', error)
         })
+    },
+
+    getFriendsPlaces(myFriendId) {
+      this.showingFriendsPlaces = true
+      this.getList(myFriendId)
+    },
+
+    getMyPlaces() {
+      this.showingFriendsPlaces = false
+      this.getList(this.user.providerData[0].uid)
     }
   }
 }
@@ -281,13 +301,14 @@ export default {
   background-image: url('/img/yt2.png');
   background-repeat: no-repeat;
   background-size: 360px 730px;
-  opacity: 1;
+  opacity: 0;
 }
 
 #main {
   background-color: #282828;
   color: #fff;
   font-family: Arial, Helvetica, sans-serif;
+  width: 100%;
 }
 #header {
   display: flex;
@@ -329,7 +350,7 @@ export default {
 
 #friends {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-evenly;
   border-bottom: 1px solid #ccc;
   border-top: 1px solid #ccc;
   padding-left: 2vw;
@@ -340,6 +361,7 @@ export default {
 .friend-name {
   font-size: 3vw;
   margin-top: 2vw;
+  text-align: center;
 }
 .friend-avatar {
   vertical-align: middle;
