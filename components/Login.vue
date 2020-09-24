@@ -56,7 +56,7 @@ export default {
         .then((result) => {
           this.token = result.credential.accessToken
 
-          this.saveFriendsList(JSON.parse(this.getFacebookFriendsList()).data)
+          this.saveFriendsList(JSON.parse(this.getFacebookFriendsList()).data, result.additionalUserInfo.profile.id)
         })
         .catch(function (error) {
           console.log(error)
@@ -70,19 +70,15 @@ export default {
       return xmlHttp.responseText
     },
 
-    saveFriendsList(userFriends) {
-      debugger
-      console.log(this.$parent.providerData[0].uid)
-
+    saveFriendsList(userFriends, uid) {
       this.firebaseDb = this.fb.firestore()
 
       this.firebaseDb
         .collection('friends')
-        .doc(this.$parent.providerData[0].uid)
+        .doc(uid)
         .set({ friends: userFriends })
         .then(() => {
           this.waitingForUSerData = false
-          debugger
           this.$parent.user_friends = userFriends
         })
     }

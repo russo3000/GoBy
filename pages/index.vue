@@ -131,8 +131,6 @@ export default {
       if (fbuser != null) {
         this.user = fbuser
 
-        console.log(this.user)
-
         this.user.isLoggedIn = true
 
         // Options to use Firebase Get command
@@ -145,10 +143,8 @@ export default {
           .then((doc) => {
             this.currentUserLastLogin = doc.data().lastLogin
             this.getList()
+            this.getFriendsList()
             this.waitingForUSerData = false
-
-            console.log(this.user_friends[0])
-            console.log(this.user_friends[0].name)
           })
           .catch(function (error) {
             console.log('Error getting cached document:', error)
