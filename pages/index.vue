@@ -12,23 +12,31 @@
           <div class="appName">Goby</div>
         </div>
 
-        <div id="avatar" @click="loggingOut = !loggingOut">
-          <img :src="user.photoURL" class="avatar" />
-        </div>
-        <div id="logout" v-if="loggingOut">
-          <div style="display: none">Last Login: {{ currentUserLastLogin }}</div>
-          <button @click="logout()">Logout</button>
+        <div id="settings">
+          <div id="logout" v-if="loggingOut">
+            <div style="display: none">Last Login: {{ currentUserLastLogin }}</div>
+            <button @click="logout()">Logout</button>
+          </div>
+          <div @click="loggingOut = !loggingOut">
+            <el-button type="primary" icon="el-icon-setting" size="mini"></el-button>
+          </div>
         </div>
       </div>
 
       <div id="friends">
-        <div @click="getMyPlaces()">
-          <img :src="user.photoURL" class="friend-avatar" />
+        <div @click="getMyPlaces()" class="friend selectedFriend" :id="user.providerData[0].uid">
+          <img :src="photoURL" class="friend-avatar" />
           <br />
           <div class="friend-name">Me</div>
         </div>
 
-        <div v-for="friend in user_friends" :key="friend.id" @click="getFriendsPlaces(friend.id)">
+        <div
+          v-for="friend in user_friends"
+          :key="friend.id"
+          :id="friend.id"
+          @click="getFriendsPlaces(friend.id)"
+          class="friend"
+        >
           <img :src="friend.picture.data.url" class="friend-avatar" />
           <br />
           <div class="friend-name">{{ friend.name }}</div>
@@ -97,10 +105,10 @@ export default {
     return {
       list: null,
       loggingOut: false,
+      photoURL: '', // Placeholders for what fb will return
       user: {
         isLoggedIn: false,
-        displayName: 'Not Logged In', // Placeholders for what google will return
-        photoURL: '' // Placeholders for what google will return
+        displayName: 'Not Logged In' // Placeholders for what google will return
       },
       user_friends: null,
       waitingForUSerData: false,
@@ -150,6 +158,7 @@ export default {
           .get(getOptions)
           .then((doc) => {
             this.currentUserLastLogin = doc.data().lastLogin
+            this.photoURL = doc.data().userphotourl
             this.getList(this.user.providerData[0].uid)
             this.getFriendsList(this.user.providerData[0].uid)
             this.waitingForUSerData = false
@@ -217,7 +226,6 @@ export default {
     },
 
     getList(uid) {
-      this.waitingForUSerData = true
       // Optionf to user Firebase Get command
       var getOptions = {
         source: 'default'
@@ -237,15 +245,11 @@ export default {
                 category.editingACategory = false
                 category.newItem = { name: '', editingAnItem: false }
               })
-
-              this.waitingForUSerData = false
             } else {
               this.list = null
-              this.waitingForUSerData = false
             }
           } else {
             this.list = null
-            this.waitingForUSerData = false
           }
         })
         .catch(function (error) {
@@ -280,11 +284,27 @@ export default {
     getFriendsPlaces(myFriendId) {
       this.showingFriendsPlaces = true
       this.getList(myFriendId)
+
+      var selectedFriends = document.getElementsByClassName('selectedFriend')
+
+      if (selectedFriends.length > 0) {
+        selectedFriends[0].classList.remove('selectedFriend')
+      }
+
+      document.getElementById(myFriendId).classList.add('selectedFriend')
     },
 
     getMyPlaces() {
       this.showingFriendsPlaces = false
       this.getList(this.user.providerData[0].uid)
+
+      var selectedFriends = document.getElementsByClassName('selectedFriend')
+
+      if (selectedFriends.length > 0) {
+        selectedFriends[0].classList.remove('selectedFriend')
+      }
+
+      document.getElementById(this.user.providerData[0].uid).classList.add('selectedFriend')
     }
   }
 }
@@ -298,10 +318,11 @@ export default {
   width: 360px;
   height: 730px;
   z-index: -1;
-  background-image: url('/img/yt2.png');
+  /*background-image: url('/img/yt2.png');*/
   background-repeat: no-repeat;
   background-size: 360px 730px;
-  opacity: 0;
+  opacity: 1;
+  background-color: #282828;
 }
 
 #main {
@@ -314,6 +335,12 @@ export default {
   display: flex;
   justify-content: space-between;
   height: 12vw;
+}
+
+#settings {
+  display: flex;
+  margin-right: 2vw;
+  margin-top: 2vw;
 }
 
 #logo {
@@ -334,13 +361,6 @@ export default {
   color: #fff;
 }
 
-#avatar {
-  display: flex;
-  width: 7vw !important;
-  margin-top: 2vw;
-  margin-right: 3vw;
-}
-
 .avatar {
   vertical-align: middle;
   width: 8vw;
@@ -348,20 +368,28 @@ export default {
   border-radius: 50%;
 }
 
+.selectedFriend {
+  background-color: #26384f;
+}
+
 #friends {
   display: flex;
   justify-content: space-evenly;
-  border-bottom: 1px solid #ccc;
-  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #3d3d3d;
+  border-top: 1px solid #3d3d3d;
   padding-left: 2vw;
-  padding-bottom: 2vw;
   height: 23vw;
 }
-
+.friend {
+  text-align: center;
+  padding-left: 2vw;
+  padding-right: 2vw;
+}
 .friend-name {
   font-size: 3vw;
   margin-top: 2vw;
   text-align: center;
+  color: gray;
 }
 .friend-avatar {
   vertical-align: middle;
@@ -369,7 +397,8 @@ export default {
   height: 14vw;
   border-radius: 50%;
   margin-top: 3vw;
-  margin-left: 2vw;
+  padding-left: 2vw;
+  padding-right: 2vw;
 }
 
 ul {

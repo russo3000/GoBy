@@ -55,12 +55,25 @@ export default {
         .signInWithPopup(provider)
         .then((result) => {
           this.token = result.credential.accessToken
-
+          this.$parent.photoURL = result.additionalUserInfo.profile.picture.data.url
+          this.saveProfilePicture(
+            result.additionalUserInfo.profile.picture.data.url,
+            result.additionalUserInfo.profile.id
+          )
           this.saveFriendsList(JSON.parse(this.getFacebookFriendsList()).data, result.additionalUserInfo.profile.id)
         })
         .catch(function (error) {
           console.log(error)
         })
+    },
+    saveProfilePicture(photoURL, uid) {
+      this.firebaseDb = this.fb.firestore()
+
+      this.firebaseDb
+        .collection('login')
+        .doc(uid)
+        .set({ userphotourl: photoURL })
+        .then(() => {})
     },
     getFacebookFriendsList() {
       const graphUrl = 'https://graph.facebook.com/me/friends?access_token=' + this.token + '&fields=name,id,picture'
