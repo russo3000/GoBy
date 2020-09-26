@@ -319,10 +319,12 @@ export default {
   height: 730px;
   z-index: -1;
   /*background-image: url('/img/yt2.png');*/
+  /*background-image: url('/img/yt1.jpg');*/
   background-repeat: no-repeat;
   background-size: 360px 730px;
   opacity: 1;
   background-color: #282828;
+  top: 95px;
 }
 
 #main {
@@ -413,6 +415,7 @@ ul {
 .carrousel {
   overflow: scroll;
   width: 100vw !important;
+  margin-bottom: 5vw;
 }
 
 .flex-container {
@@ -421,10 +424,11 @@ ul {
 
 .flex-container > div {
   background-color: #f1f1f1;
-  margin: 2vw;
-  padding: 12vw;
-  font-size: 5vw;
-  width: 100vw;
+
+  width: 30vw;
+  height: 20vw;
+  margin-left: 4vw;
+  margin-top: 2vw;
 }
 
 input {
