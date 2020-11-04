@@ -3,7 +3,6 @@
     <div id="bkg"></div>
 
     <Login v-if="!waitingForUSerData && !user.isLoggedIn"></Login>
-
     <LoaderCss v-if="waitingForUSerData"></LoaderCss>
 
     <div v-if="user.isLoggedIn" id="main">
@@ -12,17 +11,31 @@
           <div class="appName">Goby</div>
         </div>
 
-        <div id="avatar" @click="loggingOut = !loggingOut">
-          <img :src="user.photoURL" class="avatar" />
-        </div>
-        <div id="logout" v-if="loggingOut">
-          <div style="display: none">Last Login: {{ currentUserLastLogin }}</div>
-          <button @click="logout()">Logout</button>
+        <div id="settings">
+          <div id="logout" v-if="loggingOut">
+            <div style="display: none">Last Login: {{ currentUserLastLogin }}</div>
+            <button @click="logout()">Logout</button>
+          </div>
+          <div @click="loggingOut = !loggingOut">
+            <el-button type="primary" icon="el-icon-setting" size="mini"></el-button>
+          </div>
         </div>
       </div>
 
       <div id="friends">
-        <div v-for="friend in user_friends" :key="friend.id">
+        <div @click="getMyPlaces()" class="friend selectedFriend" :id="user.uid">
+          <img :src="user.photoURL" class="friend-avatar" />
+          <br />
+          <div class="friend-name">Me</div>
+        </div>
+
+        <div
+          v-for="friend in user_friends"
+          :key="friend.id"
+          :id="friend.id"
+          @click="getFriendsPlaces(friend.id)"
+          class="friend"
+        >
           <img :src="friend.picture.data.url" class="friend-avatar" />
           <br />
           <div class="friend-name">{{ friend.name }}</div>
@@ -36,12 +49,13 @@
             <div v-for="item in category.items" :key="item.id">
               <Item :category="category" :item="item"></Item>
             </div>
-            <NewItem :category="category"></NewItem>
+            <NewItem :category="category" v-if="!showingFriendsPlaces"></NewItem>
           </div>
         </li>
       </ul>
+      <div v-if="!list"><center>There are no Categories to Show</center></div>
 
-      <div id="headerNewCategory">
+      <div id="headerNewCategory" v-if="!showingFriendsPlaces">
         <NewCategory></NewCategory>
       </div>
       <br />
@@ -78,6 +92,7 @@ export default {
     return {
       list: null,
       loggingOut: false,
+      photoURL: '', // Placeholders for what fb will return
       user: {
         isLoggedIn: false,
         uid: '',
@@ -86,6 +101,7 @@ export default {
       },
       user_friends: null,
       waitingForUSerData: false,
+      showingFriendsPlaces: false,
       currentUserLastLogin: '',
       token: '',
       firebaseConfig: {
@@ -104,6 +120,8 @@ export default {
   },
   mounted() {},
   created() {
+    this.waitingForUSerData = true
+
     this.fb = firebase
 
     // Need this cuz of this strange bug i can't find any info about
@@ -112,8 +130,6 @@ export default {
     }
 
     this.firebaseDb = this.fb.firestore()
-
-    this.waitingForUSerData = true
 
     // Here is the Firebase Authentication Magic happening returning a FireBase authenticated User
     this.fb.auth().onAuthStateChanged((fbuser) => {
@@ -150,9 +166,7 @@ export default {
         .then((result) => {
           if (result.user != null) {
             this.token = result.credential.accessToken
-
             this.user.uid = result.additionalUserInfo.profile.id
-
             this.user.photoURL = result.additionalUserInfo.profile.picture.data.url
             this.user.isLoggedIn = true
 
@@ -174,6 +188,11 @@ export default {
           } else {
             this.user.isLoggedIn = false
           }
+
+          this.saveProfilePicture(
+            result.additionalUserInfo.profile.picture.data.url,
+            result.additionalUserInfo.profile.id
+          )
 
           this.saveFriendsList(JSON.parse(this.getFacebookFriendsList()).data, this.user.uid)
         })
@@ -233,56 +252,50 @@ export default {
     },
 
     getList(uid) {
-      if (!this.list) {
-        this.waitingForUSerData = true
-        // Optionf to user Firebase Get command
-        var getOptions = {
-          source: 'default'
-        }
-
-        this.firebaseDb
-          .collection('list')
-          .doc(uid)
-          .get(getOptions)
-          .then((doc) => {
-            this.list = doc.data().list
-
-            if (this.list) {
-              this.list.map((category) => {
-                category.addingANewItem = false
-                category.editingACategory = false
-                category.newItem = { name: '', editingAnItem: false }
-              })
-
-              this.waitingForUSerData = false
-            } else {
-              this.list = null
-            }
-          })
-          .catch(function (error) {
-            console.log('Error getting cached document:', error)
-          })
-      }
-    },
-    getFriendsList() {
       this.waitingForUSerData = true
       // Optionf to user Firebase Get command
+      var getOptions = {
+        source: 'default'
+      }
+
+      this.firebaseDb
+        .collection('list')
+        .doc(uid)
+        .get(getOptions)
+        .then((doc) => {
+          this.list = doc.data().list
+
+          if (this.list) {
+            this.list.map((category) => {
+              category.addingANewItem = false
+              category.editingACategory = false
+              category.newItem = { name: '', editingAnItem: false }
+            })
+
+            this.waitingForUSerData = false
+          } else {
+            this.list = null
+          }
+        })
+        .catch(function (error) {
+          console.log('Error getting cached document:', error)
+        })
+    },
+    getFriendsList(uid) {
+      this.waitingForUSerData = true
+      // Option to user Firebase Get command
       const getOptions = {
         source: 'default'
       }
 
       this.firebaseDb
         .collection('friends')
-        .doc(this.user.uid)
+        .doc(uid)
         .get(getOptions)
         .then((doc) => {
           this.user_friends = doc.data().friends
 
           if (this.user_friends) {
-            this.user_friends.map((friend) => {
-              console.log(friend)
-            })
-
             this.waitingForUSerData = false
           } else {
             this.friends = null
@@ -292,6 +305,7 @@ export default {
           console.log('Error getting cached document:', error)
         })
     },
+
     getFacebookFriendsList() {
       const graphUrl = 'https://graph.facebook.com/me/friends?access_token=' + this.token + '&fields=name,id,picture'
       const xmlHttp = new XMLHttpRequest()
@@ -308,6 +322,42 @@ export default {
         .then(() => {
           this.user_friends = userFriends
         })
+    },
+
+    getFriendsPlaces(myFriendId) {
+      this.showingFriendsPlaces = true
+      this.getList(myFriendId)
+
+      var selectedFriends = document.getElementsByClassName('selectedFriend')
+
+      if (selectedFriends.length > 0) {
+        selectedFriends[0].classList.remove('selectedFriend')
+      }
+
+      document.getElementById(myFriendId).classList.add('selectedFriend')
+    },
+
+    getMyPlaces() {
+      this.showingFriendsPlaces = false
+      this.getList(this.user.uid)
+
+      var selectedFriends = document.getElementsByClassName('selectedFriend')
+
+      if (selectedFriends.length > 0) {
+        selectedFriends[0].classList.remove('selectedFriend')
+      }
+
+      document.getElementById(this.user.uid).classList.add('selectedFriend')
+    },
+
+    saveProfilePicture(photoURL, uid) {
+      this.firebaseDb = this.fb.firestore()
+
+      this.firebaseDb
+        .collection('login')
+        .doc(uid)
+        .set({ userphotourl: photoURL })
+        .then(() => {})
     }
   }
 }
@@ -321,21 +371,31 @@ export default {
   width: 360px;
   height: 730px;
   z-index: -1;
-  background-image: url('/img/yt2.png');
+  /*background-image: url('/img/yt2.png');*/
+  /*background-image: url('/img/yt1.jpg');*/
   background-repeat: no-repeat;
   background-size: 360px 730px;
   opacity: 1;
+  background-color: #282828;
+  top: 95px;
 }
 
 #main {
   background-color: #282828;
   color: #fff;
   font-family: Arial, Helvetica, sans-serif;
+  width: 100%;
 }
 #header {
   display: flex;
   justify-content: space-between;
   height: 12vw;
+}
+
+#settings {
+  display: flex;
+  margin-right: 2vw;
+  margin-top: 2vw;
 }
 
 #logo {
@@ -356,13 +416,6 @@ export default {
   color: #fff;
 }
 
-#avatar {
-  display: flex;
-  width: 7vw !important;
-  margin-top: 2vw;
-  margin-right: 3vw;
-}
-
 .avatar {
   vertical-align: middle;
   width: 8vw;
@@ -370,19 +423,28 @@ export default {
   border-radius: 50%;
 }
 
-#friends {
-  display: flex;
-  justify-content: space-between;
-  border-bottom: 1px solid #ccc;
-  border-top: 1px solid #ccc;
-  padding-left: 2vw;
-  padding-bottom: 2vw;
-  height: 23vw;
+.selectedFriend {
+  background-color: #26384f;
 }
 
+#friends {
+  display: flex;
+  justify-content: space-evenly;
+  border-bottom: 1px solid #3d3d3d;
+  border-top: 1px solid #3d3d3d;
+  padding-left: 2vw;
+  height: 23vw;
+}
+.friend {
+  text-align: center;
+  padding-left: 2vw;
+  padding-right: 2vw;
+}
 .friend-name {
   font-size: 3vw;
   margin-top: 2vw;
+  text-align: center;
+  color: gray;
 }
 .friend-avatar {
   vertical-align: middle;
@@ -390,7 +452,8 @@ export default {
   height: 14vw;
   border-radius: 50%;
   margin-top: 3vw;
-  margin-left: 2vw;
+  padding-left: 2vw;
+  padding-right: 2vw;
 }
 
 ul {
@@ -405,6 +468,7 @@ ul {
 .carrousel {
   overflow: scroll;
   width: 100vw !important;
+  margin-bottom: 5vw;
 }
 
 .flex-container {
@@ -413,10 +477,11 @@ ul {
 
 .flex-container > div {
   background-color: #f1f1f1;
-  margin: 2vw;
-  padding: 12vw;
-  font-size: 5vw;
-  width: 100vw;
+
+  width: 30vw;
+  height: 20vw;
+  margin-left: 4vw;
+  margin-top: 2vw;
 }
 
 input {
