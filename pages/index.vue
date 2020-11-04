@@ -2,7 +2,7 @@
   <div class="app">
     <div id="bkg"></div>
 
-    <Login v-if="!waitingForUSerData && !user.isLoggedIn" :user="user" :fb="fb"></Login>
+    <Login v-if="!waitingForUSerData && !user.isLoggedIn"></Login>
 
     <LoaderCss v-if="waitingForUSerData"></LoaderCss>
 
@@ -72,18 +72,6 @@ import Category from '@/components/Category.vue'
 import newItem from '@/components/newItem.vue'
 import Item from '@/components/Item.vue'
 
-/*
-user_friends: [
-        {
-          name: 'Jason Essebag',
-          picture: {
-            data: {
-              url: 'https://miro.medium.com/fit/c/336/336/0*H3IJ5FkJ1ut-xekL.'
-            }
-          }
-        }
-      ]
-*/
 export default {
   components: { LoaderCss, Login, newCategory, Category, newItem, Item },
   data: () => {
@@ -92,6 +80,7 @@ export default {
       loggingOut: false,
       user: {
         isLoggedIn: false,
+        uid: '',
         displayName: 'Not Logged In', // Placeholders for what google will return
         photoURL: '' // Placeholders for what google will return
       },
@@ -128,44 +117,75 @@ export default {
 
     // Here is the Firebase Authentication Magic happening returning a FireBase authenticated User
     this.fb.auth().onAuthStateChanged((fbuser) => {
-      if (fbuser != null) {
-        this.user = fbuser
+      if (fbuser) {
+        //Got Loggedin user, maybe try getting if from the local storage by it's uid
 
-        console.log(this.user)
-
-        this.user.isLoggedIn = true
-
-        // Options to use Firebase Get command
-        var getOptions = { source: 'default' }
-
-        this.firebaseDb
-          .collection('login')
-          .doc(this.user.providerData[0].uid)
-          .get(getOptions)
-          .then((doc) => {
-            this.currentUserLastLogin = doc.data().lastLogin
-            this.getList()
-            this.waitingForUSerData = false
-
-            console.log(this.user_friends[0])
-            console.log(this.user_friends[0].name)
-          })
-          .catch(function (error) {
-            console.log('Error getting cached document:', error)
-          })
-      } else {
-        this.user.isLoggedIn = false
         this.waitingForUSerData = false
+      } else {
+        this.waitingForUSerData = false
+        this.user.isLoggedIn = false
       }
     })
   },
 
   methods: {
+    login(providerType) {
+      let provider = null
+
+      switch (providerType) {
+        case 'facebook':
+          provider = new this.fb.auth.FacebookAuthProvider().addScope('user_friends')
+          break
+        case 'google':
+          provider = new this.fb.auth.GoogleAuthProvider()
+          break
+        default:
+          alert(providerType + 'Not Supported')
+          break
+      }
+
+      this.fb
+        .auth()
+        .signInWithPopup(provider)
+        .then((result) => {
+          if (result.user != null) {
+            this.token = result.credential.accessToken
+
+            this.user.uid = result.additionalUserInfo.profile.id
+
+            this.user.photoURL = result.additionalUserInfo.profile.picture.data.url
+            this.user.isLoggedIn = true
+
+            // Options to use Firebase Get command
+            const getOptions = { source: 'default' }
+
+            this.firebaseDb
+              .collection('login')
+              .doc(this.user.uid)
+              .get(getOptions)
+              .then((doc) => {
+                this.currentUserLastLogin = doc.data().lastLogin
+
+                this.getList(this.user.uid)
+              })
+              .catch(function (error) {
+                console.log('Error getting cached document:', error)
+              })
+          } else {
+            this.user.isLoggedIn = false
+          }
+
+          this.saveFriendsList(JSON.parse(this.getFacebookFriendsList()).data, this.user.uid)
+        })
+        .catch(function (error) {
+          console.log(error)
+        })
+    },
     logout() {
       let currentdate = new Date().toLocaleString()
       this.firebaseDb
         .collection('login')
-        .doc(this.user.providerData[0].uid)
+        .doc(this.user.uid)
         .set({ lastLogin: this.user.displayName + ' : ' + currentdate })
         .then(() => {
           console.log('Last Logout successfully written to firebase')
@@ -203,7 +223,7 @@ export default {
 
           this.firebaseDb
             .collection('list')
-            .doc(this.user.providerData[0].uid)
+            .doc(this.user.uid)
             .set({ list: this.list })
             .then(() => {
               this.waitingForUSerData = false
@@ -212,35 +232,37 @@ export default {
       }
     },
 
-    getList() {
-      this.waitingForUSerData = true
-      // Optionf to user Firebase Get command
-      var getOptions = {
-        source: 'default'
+    getList(uid) {
+      if (!this.list) {
+        this.waitingForUSerData = true
+        // Optionf to user Firebase Get command
+        var getOptions = {
+          source: 'default'
+        }
+
+        this.firebaseDb
+          .collection('list')
+          .doc(uid)
+          .get(getOptions)
+          .then((doc) => {
+            this.list = doc.data().list
+
+            if (this.list) {
+              this.list.map((category) => {
+                category.addingANewItem = false
+                category.editingACategory = false
+                category.newItem = { name: '', editingAnItem: false }
+              })
+
+              this.waitingForUSerData = false
+            } else {
+              this.list = null
+            }
+          })
+          .catch(function (error) {
+            console.log('Error getting cached document:', error)
+          })
       }
-
-      this.firebaseDb
-        .collection('list')
-        .doc(this.user.providerData[0].uid)
-        .get(getOptions)
-        .then((doc) => {
-          this.list = doc.data().list
-
-          if (this.list) {
-            this.list.map((category) => {
-              category.addingANewItem = false
-              category.editingACategory = false
-              category.newItem = { name: '', editingAnItem: false }
-            })
-
-            this.waitingForUSerData = false
-          } else {
-            this.list = null
-          }
-        })
-        .catch(function (error) {
-          console.log('Error getting cached document:', error)
-        })
     },
     getFriendsList() {
       this.waitingForUSerData = true
@@ -251,7 +273,7 @@ export default {
 
       this.firebaseDb
         .collection('friends')
-        .doc(this.user.providerData[0].uid)
+        .doc(this.user.uid)
         .get(getOptions)
         .then((doc) => {
           this.user_friends = doc.data().friends
@@ -268,6 +290,23 @@ export default {
         })
         .catch(function (error) {
           console.log('Error getting cached document:', error)
+        })
+    },
+    getFacebookFriendsList() {
+      const graphUrl = 'https://graph.facebook.com/me/friends?access_token=' + this.token + '&fields=name,id,picture'
+      const xmlHttp = new XMLHttpRequest()
+      xmlHttp.open('GET', graphUrl, false) // false for synchronous request
+      xmlHttp.send(null)
+      return xmlHttp.responseText
+    },
+
+    saveFriendsList(userFriends, uid) {
+      this.firebaseDb
+        .collection('friends')
+        .doc(uid)
+        .set({ friends: userFriends })
+        .then(() => {
+          this.user_friends = userFriends
         })
     }
   }

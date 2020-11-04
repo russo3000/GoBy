@@ -5,7 +5,7 @@
       <img
         src="/img/fb.png"
         id="loginbutton"
-        v-if="!$parent.waitingForUSerData && !user.isLoggedIn"
+        v-if="!$parent.waitingForUSerData && !$parent.user.isLoggedIn"
         @click="login('facebook')"
       />
     </div>
@@ -14,15 +14,9 @@
 
 <script>
 export default {
-  props: {
-    user: { type: Object, required: true },
-    fb: { type: Object, required: true }
-  },
+  props: {},
   data() {
-    return {
-      token: '',
-      firebaseDb: null
-    }
+    return {}
   },
   mounted() {
     const imageNameNumber = Math.floor(Math.random() * 42)
@@ -36,55 +30,7 @@ export default {
   created() {},
   methods: {
     login(providerType) {
-      let provider = null
-
-      switch (providerType) {
-        case 'facebook':
-          provider = new this.fb.auth.FacebookAuthProvider().addScope('user_friends')
-          break
-        case 'google':
-          provider = new this.fb.auth.GoogleAuthProvider()
-          break
-        default:
-          alert(providerType + 'Not Supported')
-          break
-      }
-
-      this.fb
-        .auth()
-        .signInWithPopup(provider)
-        .then((result) => {
-          this.token = result.credential.accessToken
-
-          this.saveFriendsList(JSON.parse(this.getFacebookFriendsList()).data)
-        })
-        .catch(function (error) {
-          console.log(error)
-        })
-    },
-    getFacebookFriendsList() {
-      const graphUrl = 'https://graph.facebook.com/me/friends?access_token=' + this.token + '&fields=name,id,picture'
-      const xmlHttp = new XMLHttpRequest()
-      xmlHttp.open('GET', graphUrl, false) // false for synchronous request
-      xmlHttp.send(null)
-      return xmlHttp.responseText
-    },
-
-    saveFriendsList(userFriends) {
-      debugger
-      console.log(this.$parent.providerData[0].uid)
-
-      this.firebaseDb = this.fb.firestore()
-
-      this.firebaseDb
-        .collection('friends')
-        .doc(this.$parent.providerData[0].uid)
-        .set({ friends: userFriends })
-        .then(() => {
-          this.waitingForUSerData = false
-          debugger
-          this.$parent.user_friends = userFriends
-        })
+      this.$parent.login(providerType)
     }
   }
 }
