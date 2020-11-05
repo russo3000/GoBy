@@ -52,9 +52,9 @@ export default {
     addNewItem(category) {
       this.waitingForUSerData = true
 
-      for (let i = 0; i < this.$parent.list.length; i++) {
-        if (this.$parent.list[i].name === category.name) {
-          this.$parent.list[i].items.push(category.newItem)
+      for (let i = 0; i < this.$parent.user.list.length; i++) {
+        if (this.$parent.user.list[i].name === category.name) {
+          this.$parent.user.list[i].items.push(category.newItem)
         }
       }
 

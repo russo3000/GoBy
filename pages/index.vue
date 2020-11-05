@@ -30,7 +30,7 @@
         </div>
 
         <div
-          v-for="friend in user_friends"
+          v-for="friend in user.user_friends"
           :key="friend.id"
           :id="friend.id"
           @click="getFriendsPlaces(friend.id)"
@@ -43,7 +43,7 @@
       </div>
 
       <ul>
-        <li v-for="category in list" :key="category.id">
+        <li v-for="category in user.list" :key="category.id">
           <Category :category="category"></Category>
           <div class="carrousel flex-container">
             <div v-for="item in category.items" :key="item.id">
@@ -53,7 +53,7 @@
           </div>
         </li>
       </ul>
-      <div v-if="!list"><center>There are no Categories to Show</center></div>
+      <div v-if="!user.list"><center>There are no Categories to Show</center></div>
 
       <div id="headerNewCategory" v-if="!showingFriendsPlaces">
         <NewCategory></NewCategory>
@@ -90,16 +90,16 @@ export default {
   components: { LoaderCss, Login, newCategory, Category, newItem, Item },
   data: () => {
     return {
-      list: null,
       loggingOut: false,
       photoURL: '', // Placeholders for what fb will return
       user: {
         isLoggedIn: false,
         uid: '',
         displayName: 'Not Logged In', // Placeholders for what google will return
-        photoURL: '' // Placeholders for what google will return
+        photoURL: '', // Placeholders for what google will return
+        user_friends: null,
+        list: null
       },
-      user_friends: null,
       waitingForUSerData: false,
       showingFriendsPlaces: false,
       currentUserLastLogin: '',
@@ -135,6 +135,14 @@ export default {
     this.fb.auth().onAuthStateChanged((fbuser) => {
       if (fbuser) {
         //Got Loggedin user, maybe try getting if from the local storage by it's uid
+        this.user.uid = localStorage.getItem('goby-user-uid')
+
+        if (this.user.uid) {
+          this.user = JSON.parse(localStorage.getItem(this.user.uid))
+          if (!this.user.list) {
+            this.getList(this.user.uid)
+          }
+        }
 
         this.waitingForUSerData = false
       } else {
@@ -194,7 +202,11 @@ export default {
             result.additionalUserInfo.profile.id
           )
 
-          this.saveFriendsList(JSON.parse(this.getFacebookFriendsList()).data, this.user.uid)
+          this.user.user_friends = JSON.parse(this.getFacebookFriendsList()).data
+          this.saveFriendsList(this.user.user_friends, this.user.uid)
+
+          localStorage.setItem('goby-user-uid', this.user.uid)
+          localStorage.setItem(this.user.uid, JSON.stringify(this.user))
         })
         .catch(function (error) {
           console.log(error)
@@ -227,8 +239,8 @@ export default {
     },
 
     saveList() {
-      if (this.list) {
-        this.list.map((category) => {
+      if (this.user.list) {
+        this.user.list.map((category) => {
           // Recetting the state of all objects
           this.addingANewCategory = false
           category.editingACategory = false
@@ -243,7 +255,7 @@ export default {
           this.firebaseDb
             .collection('list')
             .doc(this.user.uid)
-            .set({ list: this.list })
+            .set({ list: this.user.list })
             .then(() => {
               this.waitingForUSerData = false
             })
@@ -263,10 +275,10 @@ export default {
         .doc(uid)
         .get(getOptions)
         .then((doc) => {
-          this.list = doc.data().list
+          this.user.list = doc.data().list
 
-          if (this.list) {
-            this.list.map((category) => {
+          if (this.user.list) {
+            this.user.list.map((category) => {
               category.addingANewItem = false
               category.editingACategory = false
               category.newItem = { name: '', editingAnItem: false }
@@ -274,7 +286,7 @@ export default {
 
             this.waitingForUSerData = false
           } else {
-            this.list = null
+            this.user.list = null
           }
         })
         .catch(function (error) {
@@ -293,13 +305,9 @@ export default {
         .doc(uid)
         .get(getOptions)
         .then((doc) => {
-          this.user_friends = doc.data().friends
+          this.user.user_friends = doc.data().friends
 
-          if (this.user_friends) {
-            this.waitingForUSerData = false
-          } else {
-            this.friends = null
-          }
+          this.waitingForUSerData = false
         })
         .catch(function (error) {
           console.log('Error getting cached document:', error)
@@ -319,9 +327,7 @@ export default {
         .collection('friends')
         .doc(uid)
         .set({ friends: userFriends })
-        .then(() => {
-          this.user_friends = userFriends
-        })
+        .then(() => {})
     },
 
     getFriendsPlaces(myFriendId) {
@@ -372,7 +378,7 @@ export default {
   height: 730px;
   z-index: -1;
   /*background-image: url('/img/yt2.png');*/
-  /*background-image: url('/img/yt1.jpg');*/
+  background-image: url('/img/yt1.jpg');
   background-repeat: no-repeat;
   background-size: 360px 730px;
   opacity: 1;
@@ -476,10 +482,10 @@ ul {
 }
 
 .flex-container > div {
+  display: flex;
   background-color: #f1f1f1;
-
-  width: 30vw;
-  height: 20vw;
+  width: 50vw;
+  height: 30vw;
   margin-left: 4vw;
   margin-top: 2vw;
 }

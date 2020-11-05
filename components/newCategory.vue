@@ -66,10 +66,10 @@ export default {
     addNewCategory() {
       this.waitingForUSerData = true
 
-      if (this.$parent.list == null) {
-        this.$parent.list = [this.newCategory]
+      if (this.$parent.user.list == null) {
+        this.$parent.user.list = [this.newCategory]
       } else {
-        this.$parent.list.push(this.newCategory)
+        this.$parent.user.list.push(this.newCategory)
       }
 
       this.addingANewCategory = false

@@ -64,9 +64,9 @@ export default {
       if (confirm(`Are you sure you want to delete the category ${category.name}?`) === true) {
         this.waitingForUSerData = true
 
-        for (let i = 0; i < this.$parent.list.length; i++) {
-          if (this.$parent.list[i].name === category.name) {
-            this.$parent.list.splice(i, 1)
+        for (let i = 0; i < this.$parent.user.list.length; i++) {
+          if (this.$parent.user.list[i].name === category.name) {
+            this.$parent.user.list.splice(i, 1)
           }
         }
 
@@ -95,13 +95,9 @@ export default {
 
 <style scoped>
 .category {
-  width: 85vw !important;
-  margin-left: 5vw !important;
+  margin-left: 4vw !important;
 }
 .categoryName {
-  margin-left: 5vw !important;
   margin-right: 2vw !important;
-  size: 10px;
-  width: 100vw !important;
 }
 </style>
