@@ -11,6 +11,7 @@
       >New Category</el-button
     >
     <el-input
+      class="categoryNameInput"
       v-if="addingANewCategory"
       v-model="newCategory.name"
       clearable
@@ -82,3 +83,8 @@ export default {
   }
 }
 </script>
+<style scoped>
+.categoryNameInput {
+  width: 64%;
+}
+</style>

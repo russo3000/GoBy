@@ -479,15 +479,17 @@ ul {
 
 .flex-container {
   display: flex;
+  width: 100%;
 }
 
 .flex-container > div {
   display: flex;
-  background-color: #f1f1f1;
-  width: 50vw;
-  height: 30vw;
+
+  width: 130px;
+  height: 160px;
   margin-left: 4vw;
   margin-top: 2vw;
+  font-size: 13px;
 }
 
 input {
@@ -501,6 +503,7 @@ input {
 
 .el-input {
   margin-top: 1vw;
-  width: 70%;
+  width: 100%;
+  margin-bottom: 2vw;
 }
 </style>

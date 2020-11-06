@@ -5,6 +5,7 @@
 
       <span v-if="!$parent.showingFriendsPlaces">
         <el-input
+          class="categoryNameInput"
           v-if="category.editingACategory"
           v-model="category.name"
           clearable
@@ -99,5 +100,9 @@ export default {
 }
 .categoryName {
   margin-right: 2vw !important;
+}
+
+.categoryNameInput {
+  width: 64%;
 }
 </style>

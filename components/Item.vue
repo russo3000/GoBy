@@ -1,5 +1,7 @@
 <template>
-  <nobr>
+  <div>
+    <img src="/img/items/0.jpg" alt="" width="130" height="70" style="object-fit: cover; width: 130px; height: 70px" />
+    <br />
     <span v-if="!item.editingAnItem">{{ item.name }}</span>
     <span v-if="!$parent.showingFriendsPlaces">
       <el-input v-if="item.editingAnItem" v-model="item.name" clearable :placeholder="`${tmpItemName}`">
@@ -13,6 +15,7 @@
         circle
         @click="editAnItem(item)"
       ></el-button>
+      <br />
       <el-button
         v-if="item.editingAnItem"
         type="success"
@@ -39,7 +42,7 @@
         @click="deleteAnItem(category, item)"
       ></el-button>
     </span>
-  </nobr>
+  </div>
 </template>
 
 <script>

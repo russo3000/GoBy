@@ -1,6 +1,9 @@
 <template>
-  <div>
+  <div class="newItem">
+    <img src="/img/items/0.jpg" alt="" width="130" height="70" style="object-fit: cover; width: 130px; height: 70px" />
+    <br />
     <nobr>
+      <br />
       <el-button
         v-if="!category.addingANewItem"
         type="primary"
@@ -20,6 +23,7 @@
       >
         <!--<template slot="prepend">New Item Name</template>-->
       </el-input>
+      <br />
       <el-button
         v-if="category.addingANewItem"
         type="success"
